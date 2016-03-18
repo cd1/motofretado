@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">MotoFretado</string>
+    <string name="app_name">Moto Fretado</string>
+    <string name="action_settings">Settings</string>
+    <string name="enter_bus_button">Enter bus</string>
+    <string name="leave_bus_button">Leave bus</string>
+    <string name="bus_number_text">Bus number:</string>
 </resources>

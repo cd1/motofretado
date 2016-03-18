@@ -1,0 +1,43 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".MainFragment"
+    tools:showIn="@layout/activity_main">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bus_number_text"
+            android:id="@+id/textBusNumber"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:labelFor="@+id/editBusNumber" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/editBusNumber"
+            android:layout_below="@id/textBusNumber"
+            android:layout_alignStart="@id/textBusNumber"
+            android:inputType="text" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/enter_bus_button"
+            android:id="@+id/buttonEnterBus"
+            android:layout_below="@+id/editBusNumber"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/leave_bus_button"
+            android:id="@+id/buttonLeaveBus"
+            android:layout_below="@+id/buttonEnterBus" />
+
+</RelativeLayout>
