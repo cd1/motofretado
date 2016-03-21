@@ -4,4 +4,16 @@
     <string name="enter_bus_button">Enter bus</string>
     <string name="leave_bus_button">Leave bus</string>
     <string name="bus_number_text">Bus number:</string>
+
+    <string name="fine_location_permission_not_granted">Location permission not granted</string>
+    <string name="fine_location_permission_rationale">You need to grant permission to Location Services in order to track the bus route.</string>
+    <string name="snackbar_action_settings">Settings</string>
+
+    <string name="notification_title">Bus %s is being tracked</string>
+    <string name="notification_stop_title">Stop</string>
+
+    <string name="empty_bus_id_message">You need to enter the bus number</string>
+    <string name="update_network_error">Failed to update the bus location</string>
+
+    <string name="stop_location_update">The bus location won\'t be sent anymore</string>
 </resources>
