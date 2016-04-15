@@ -43,8 +43,7 @@ public class MainFragment extends Fragment implements View.OnClickListener, Main
                 == PackageManager.PERMISSION_GRANTED) {
             mPresenter.startLocationUpdate();
         } else {
-            Log.d(TAG, "the app doesn't have location permission");
-            Log.d(TAG, "requesting location permission to the user");
+            Log.d(TAG, "the app doesn't have location permission; requesting it to the user");
             requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_FINE_LOCATION_PERMISSION);
 
@@ -59,13 +58,13 @@ public class MainFragment extends Fragment implements View.OnClickListener, Main
     @Override
     @MainThread
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        Log.v(TAG, "> onCreate([Bundle])");
+        Log.v(TAG, "> onCreate(" + savedInstanceState + ")");
 
         super.onCreate(savedInstanceState);
 
         mPresenter = new MainPresenterImpl(getActivity(), this);
 
-        Log.v(TAG, "< onCreate([Bundle])");
+        Log.v(TAG, "< onCreate(" + savedInstanceState + ")");
     }
 
     @Override

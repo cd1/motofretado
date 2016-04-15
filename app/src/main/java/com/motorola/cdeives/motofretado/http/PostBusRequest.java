@@ -1,6 +1,7 @@
 package com.motorola.cdeives.motofretado.http;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Response;
@@ -12,10 +13,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PostBusRequest extends JsonObjectRequest {
+    private static final String TAG = PostBusRequest.class.getSimpleName();
+
     private Bus mBus;
 
     public <L extends Response.Listener<JSONObject> & Response.ErrorListener> PostBusRequest(@NonNull Bus bus, @NonNull L listener) {
         super(Method.POST, Util.SERVER_URL + "/bus", null, listener, listener);
+        Log.d(TAG, "creating request: POST /bus/");
         mBus = bus;
     }
 
