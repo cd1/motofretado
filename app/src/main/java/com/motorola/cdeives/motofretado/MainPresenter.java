@@ -11,4 +11,8 @@ public interface MainPresenter {
     void startLocationUpdate();
     @UiThread
     void stopLocationUpdate();
+    @UiThread
+    String getBusId();
+    @UiThread
+    boolean isUpdateLocationServiceRunning();
 }

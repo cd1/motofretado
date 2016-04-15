@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Messenger;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.util.Log;
 
@@ -12,6 +13,8 @@ public class MainPresenterImpl implements MainPresenter {
 
     /* package */ @NonNull Context mContext;
     /* package */ @NonNull MainPresenterView mView;
+    private @Nullable String mBusId;
+    private boolean mIsServiceRunning;
 
     public MainPresenterImpl(@NonNull Context context, @NonNull MainPresenterView view) {
         mContext = context;
@@ -32,13 +35,14 @@ public class MainPresenterImpl implements MainPresenter {
     @UiThread
     public void startLocationUpdate() {
         Messenger messenger = new Messenger(new MainPresenterHandler(this));
-        String busId = mView.getBusID();
+        mBusId = mView.getBusID();
 
         Intent serviceIntent = new Intent(mContext, UpdateLocationService.class);
-        serviceIntent.putExtra(UpdateLocationService.EXTRA_BUS_ID, busId);
+        serviceIntent.putExtra(UpdateLocationService.EXTRA_BUS_ID, mBusId);
         serviceIntent.putExtra(UpdateLocationService.EXTRA_MESSENGER, messenger);
         Log.d(TAG, "starting service " + serviceIntent.getComponent());
         mContext.startService(serviceIntent);
+        mIsServiceRunning = true;
         // END
 
         /* LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
@@ -82,5 +86,18 @@ public class MainPresenterImpl implements MainPresenter {
     public void stopLocationUpdate() {
         Intent serviceIntent = new Intent(mContext, UpdateLocationService.class);
         mContext.stopService(serviceIntent);
+        mIsServiceRunning = false;
+    }
+
+    @Override
+    @UiThread
+    public String getBusId() {
+        return mBusId;
+    }
+
+    @Override
+    @UiThread
+    public boolean isUpdateLocationServiceRunning() {
+        return mIsServiceRunning;
     }
 }

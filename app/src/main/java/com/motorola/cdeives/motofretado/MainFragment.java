@@ -76,6 +76,12 @@ public class MainFragment extends Fragment implements View.OnClickListener, Main
         View rootView = inflater.inflate(R.layout.fragment_main, container, true);
 
         mEditBusNumber = (EditText) rootView.findViewById(R.id.editBusNumber);
+        if (mPresenter.isUpdateLocationServiceRunning()) {
+            String busId = mPresenter.getBusId();
+            Log.d(TAG, "restoring bus ID to " + busId);
+            mEditBusNumber.setText(busId);
+            disableBusID();
+        }
 
         Button buttonEnterBus = (Button) rootView.findViewById(R.id.buttonEnterBus);
         buttonEnterBus.setOnClickListener(this);
