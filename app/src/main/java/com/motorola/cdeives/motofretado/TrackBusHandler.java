@@ -8,17 +8,17 @@ import android.util.Log;
 
 import java.lang.ref.WeakReference;
 
-public class MainPresenterHandler extends Handler {
+public class TrackBusHandler extends Handler {
     public static final int MSG_DISPLAY_TOAST = 0;
     public static final int MSG_ENABLE_BUS_ID = 1;
     public static final int MSG_DISABLE_BUS_ID = 2;
 
-    private static final String TAG = MainPresenterHandler.class.getSimpleName();
+    private static final String TAG = TrackBusHandler.class.getSimpleName();
 
-    private @NonNull WeakReference<MainPresenterImpl> mMainPresenterRef;
+    private @NonNull WeakReference<TrackBusPresenterImpl> mTrackBusPresenterRef;
 
-    public MainPresenterHandler(@NonNull MainPresenterImpl mainPresenter) {
-        mMainPresenterRef = new WeakReference<>(mainPresenter);
+    public TrackBusHandler(@NonNull TrackBusPresenterImpl presenter) {
+        mTrackBusPresenterRef = new WeakReference<>(presenter);
     }
 
     @Override
@@ -26,23 +26,23 @@ public class MainPresenterHandler extends Handler {
     public void handleMessage(Message msg) {
         Log.v(TAG, "> handleMessage(" + msg + ")");
 
-        MainPresenterImpl mainPresenter = mMainPresenterRef.get();
-        if (mainPresenter != null) {
+        TrackBusPresenterImpl presenter = mTrackBusPresenterRef.get();
+        if (presenter != null) {
             switch (msg.what) {
                 case MSG_DISPLAY_TOAST:
-                    mainPresenter.mView.displayToast(mainPresenter.mContext.getResources().getString(msg.arg1));
+                    presenter.mView.displayToast(presenter.mContext.getResources().getString(msg.arg1));
                     break;
                 case MSG_ENABLE_BUS_ID:
-                    mainPresenter.mView.enableBusID();
+                    presenter.mView.enableBusID();
                     break;
                 case MSG_DISABLE_BUS_ID:
-                    mainPresenter.mView.disableBusID();
+                    presenter.mView.disableBusID();
                     break;
                 default:
                     Log.wtf(TAG, "unexpected message code: " + msg.what);
             }
         } else {
-            Log.w(TAG, "mainPresenter ref is null; can't handle message");
+            Log.w(TAG, "TrackBusPresenter ref is null; can't handle message");
         }
 
         Log.v(TAG, "< handleMessage(" + msg + ")");

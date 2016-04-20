@@ -2,7 +2,7 @@ package com.motorola.cdeives.motofretado;
 
 import android.support.annotation.UiThread;
 
-public interface MainPresenter {
+public interface TrackBusPresenter {
     @UiThread
     void setUp();
     @UiThread

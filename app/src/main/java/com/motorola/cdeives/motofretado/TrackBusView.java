@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 
-public interface MainPresenterView {
+public interface TrackBusView {
     @UiThread
     @NonNull String getBusID();
     @UiThread

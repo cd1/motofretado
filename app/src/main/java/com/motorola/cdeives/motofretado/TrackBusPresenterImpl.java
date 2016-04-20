@@ -8,15 +8,16 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.util.Log;
 
-public class MainPresenterImpl implements MainPresenter {
-    private static final String TAG = MainPresenterImpl.class.getSimpleName();
+public class TrackBusPresenterImpl implements TrackBusPresenter {
+    private static final String TAG = TrackBusPresenterImpl.class.getSimpleName();
 
     /* package */ @NonNull Context mContext;
-    /* package */ @NonNull MainPresenterView mView;
+    /* package */ @NonNull
+    TrackBusView mView;
     private @Nullable String mBusId;
     private boolean mIsServiceRunning;
 
-    public MainPresenterImpl(@NonNull Context context, @NonNull MainPresenterView view) {
+    public TrackBusPresenterImpl(@NonNull Context context, @NonNull TrackBusView view) {
         mContext = context;
         mView = view;
     }
@@ -34,7 +35,7 @@ public class MainPresenterImpl implements MainPresenter {
     @Override
     @UiThread
     public void startLocationUpdate() {
-        Messenger messenger = new Messenger(new MainPresenterHandler(this));
+        Messenger messenger = new Messenger(new TrackBusHandler(this));
         mBusId = mView.getBusID();
 
         Intent serviceIntent = new Intent(mContext, UpdateLocationService.class);
@@ -73,7 +74,7 @@ public class MainPresenterImpl implements MainPresenter {
                 if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
                         == PackageManager.PERMISSION_GRANTED) {
                     mView.disableBusID();
-                    LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, MainPresenterImpl.this);
+                    LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, TrackBusPresenterImpl.this);
                 } else {
                     mView.displayToast("Location permission wasn't granted");
                 }

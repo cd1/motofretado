@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/bottom_bar_track_bus"
+        android:icon="@drawable/ic_directions_bus_black_24dp"
+        android:title="@string/track_bus_title" />
+</menu>

@@ -24,11 +24,11 @@ import android.widget.Toast;
 
 import java.util.Arrays;
 
-public class MainFragment extends Fragment implements View.OnClickListener, MainPresenterView {
-    private static final String TAG = MainFragment.class.getSimpleName();
+public class TrackBusFragment extends Fragment implements View.OnClickListener, TrackBusView {
+    private static final String TAG = TrackBusFragment.class.getSimpleName();
     private static final int REQUEST_FINE_LOCATION_PERMISSION = 0;
 
-    private MainPresenter mPresenter;
+    private TrackBusPresenter mPresenter;
     private EditText mEditBusNumber;
 
     @UiThread
@@ -62,7 +62,7 @@ public class MainFragment extends Fragment implements View.OnClickListener, Main
 
         super.onCreate(savedInstanceState);
 
-        mPresenter = new MainPresenterImpl(getActivity(), this);
+        mPresenter = new TrackBusPresenterImpl(getActivity(), this);
 
         Log.v(TAG, "< onCreate(" + savedInstanceState + ")");
     }
@@ -73,7 +73,7 @@ public class MainFragment extends Fragment implements View.OnClickListener, Main
                              Bundle savedInstanceState) {
         Log.v(TAG, "> onCreateView([LayoutInflater, ViewGroup, Bundle])");
 
-        View rootView = inflater.inflate(R.layout.fragment_main, container, true);
+        View rootView = inflater.inflate(R.layout.fragment_track_bus, container, false);
 
         mEditBusNumber = (EditText) rootView.findViewById(R.id.editBusNumber);
         if (mPresenter.isUpdateLocationServiceRunning()) {

@@ -109,14 +109,14 @@ public class UpdateLocationService extends Service
         Log.d(TAG, "closing connection to Google Play Services");
         mGoogleApiClient.disconnect();
 
-        Message msg = Message.obtain(null, MainPresenterHandler.MSG_ENABLE_BUS_ID);
+        Message msg = Message.obtain(null, TrackBusHandler.MSG_ENABLE_BUS_ID);
         try {
             mMessenger.send(msg);
         } catch (RemoteException ex) {
             Log.e(TAG, "error sending message to enable bus ID", ex);
         }
 
-        msg = Message.obtain(null, MainPresenterHandler.MSG_DISPLAY_TOAST, R.string.stop_location_update, 0);
+        msg = Message.obtain(null, TrackBusHandler.MSG_DISPLAY_TOAST, R.string.stop_location_update, 0);
         try {
             mMessenger.send(msg);
         } catch (RemoteException ex) {
@@ -140,7 +140,7 @@ public class UpdateLocationService extends Service
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
                     locationRequest, this);
 
-            Message msg = Message.obtain(null, MainPresenterHandler.MSG_DISABLE_BUS_ID);
+            Message msg = Message.obtain(null, TrackBusHandler.MSG_DISABLE_BUS_ID);
             try {
                 mMessenger.send(msg);
             } catch (RemoteException ex) {
@@ -160,7 +160,7 @@ public class UpdateLocationService extends Service
             Log.d(TAG, "marking the service as foreground / adding persistent notification");
             startForeground(NOTIFICATION_ID, notification);
         } else {
-            Message msg = Message.obtain(null, MainPresenterHandler.MSG_DISPLAY_TOAST, R.string.fine_location_permission_not_granted, 0);
+            Message msg = Message.obtain(null, TrackBusHandler.MSG_DISPLAY_TOAST, R.string.fine_location_permission_not_granted, 0);
             try {
                 mMessenger.send(msg);
             } catch (RemoteException ex) {
@@ -176,7 +176,7 @@ public class UpdateLocationService extends Service
         Log.v(TAG, "> onConnectionSuspended(" + i + ")");
 
         Log.w(TAG, "Google Play Services connection was suspended!");
-        Message msg = Message.obtain(null, MainPresenterHandler.MSG_ENABLE_BUS_ID);
+        Message msg = Message.obtain(null, TrackBusHandler.MSG_ENABLE_BUS_ID);
         try {
             mMessenger.send(msg);
         } catch (RemoteException ex) {
@@ -191,7 +191,7 @@ public class UpdateLocationService extends Service
         Log.v(TAG, "> onConnectionFailed(" + connectionResult + ")");
 
         Log.w(TAG, "Google Play Services connection failed!");
-        Message msg = Message.obtain(null, MainPresenterHandler.MSG_ENABLE_BUS_ID);
+        Message msg = Message.obtain(null, TrackBusHandler.MSG_ENABLE_BUS_ID);
         try {
             mMessenger.send(msg);
         } catch (RemoteException ex) {
@@ -251,7 +251,7 @@ public class UpdateLocationService extends Service
                     Error httpError = Util.getGsonInstance().fromJson(new String(error.networkResponse.data), Error.class);
                     Log.e(TAG, "unexpected error PATCHing bus: " + httpError.details + "(" + httpError.status + ")", error);
 
-                    Message msg = Message.obtain(null, MainPresenterHandler.MSG_DISPLAY_TOAST, R.string.update_network_error, 0);
+                    Message msg = Message.obtain(null, TrackBusHandler.MSG_DISPLAY_TOAST, R.string.update_network_error, 0);
                     try {
                         mMessenger.send(msg);
                     } catch (RemoteException ex) {
@@ -290,7 +290,7 @@ public class UpdateLocationService extends Service
                     Error httpError = Util.getGsonInstance().fromJson(new String(error.networkResponse.data), Error.class);
                     Log.e(TAG, "unexpected error POSTing bus: " + httpError.details + "(" + httpError.status + ")", error);
 
-                    Message msg = Message.obtain(null, MainPresenterHandler.MSG_DISPLAY_TOAST, R.string.update_network_error, 0);
+                    Message msg = Message.obtain(null, TrackBusHandler.MSG_DISPLAY_TOAST, R.string.update_network_error, 0);
                     try {
                         mMessenger.send(msg);
                     } catch (RemoteException ex) {
