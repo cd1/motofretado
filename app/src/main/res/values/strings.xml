@@ -16,4 +16,7 @@
     <string name="update_network_error">Failed to update the bus location</string>
 
     <string name="track_bus_title">Track bus</string>
+    <string name="view_map_title">View map</string>
+
+    <string name="view_bus_on_map_button">View bus on map</string>
 </resources>

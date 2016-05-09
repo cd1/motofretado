@@ -72,6 +72,10 @@ public class MainActivity extends AppCompatActivity
             case R.id.bottom_bar_track_bus:
                 setCurrentFragment(new TrackBusFragment());
                 break;
+            case R.id.bottom_bar_view_map:
+                Fragment fragment = new ViewMapFragment();
+                setCurrentFragment(fragment);
+                break;
             default:
                 Log.wtf(TAG, "I don't know how to handle this tab's click: " +
                         getResources().getResourceEntryName(menuItemId));

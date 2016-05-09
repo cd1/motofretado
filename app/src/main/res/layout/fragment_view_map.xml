@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".ViewMapFragment">
+
+    <TextView
+        android:id="@+id/textBusID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/bus_number_text"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:labelFor="@+id/editBusID" />
+
+    <EditText
+        android:id="@+id/editBusID"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textBusID"
+        android:layout_alignParentStart="true"
+        android:inputType="text" />
+
+    <Button
+        android:id="@+id/buttonViewMap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/view_bus_on_map_button"
+        android:layout_below="@id/editBusID"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
+
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/map_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttonViewMap" />
+</RelativeLayout>
