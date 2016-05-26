@@ -2,10 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/bottom_bar_track_bus"
-        android:icon="@drawable/ic_directions_bus_black_24dp"
+        android:icon="@drawable/ic_directions_bus"
         android:title="@string/track_bus_title" />
     <item
         android:id="@+id/bottom_bar_view_map"
-        android:icon="@drawable/ic_map_black_24dp"
+        android:icon="@drawable/ic_map"
         android:title="@string/view_map_title" />
 </menu>

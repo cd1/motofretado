@@ -145,10 +145,10 @@ public class UpdateLocationService extends Service
                     activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             Notification notification = new NotificationCompat.Builder(this)
-                    .setSmallIcon(R.drawable.bus_notification)
+                    .setSmallIcon(R.drawable.ic_stat_notify_bus)
                     .setContentTitle(getString(R.string.notification_title, mBusId))
                     .setContentIntent(pendingContent)
-                    .addAction(R.drawable.ic_cancel_black_24dp, getString(R.string.notification_stop_title), null)
+                    .addAction(R.drawable.ic_cancel, getString(R.string.notification_stop_title), null)
                     .build();
             Log.d(TAG, "marking the service as foreground / adding persistent notification");
             startForeground(NOTIFICATION_ID, notification);
