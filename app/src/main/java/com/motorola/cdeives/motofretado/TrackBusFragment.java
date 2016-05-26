@@ -12,7 +12,9 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,18 +26,20 @@ import android.widget.Toast;
 
 import java.util.Arrays;
 
-public class TrackBusFragment extends Fragment implements View.OnClickListener, TrackBusView {
+public class TrackBusFragment extends Fragment implements View.OnClickListener,
+        LoaderManager.LoaderCallbacks<TrackBusMvp.Presenter>, TrackBusMvp.View {
     private static final String TAG = TrackBusFragment.class.getSimpleName();
     private static final int REQUEST_FINE_LOCATION_PERMISSION = 0;
+    private static final int TRACK_BUS_LOADER_ID = 0;
 
-    private TrackBusPresenter mPresenter;
+    private TrackBusMvp.Presenter mPresenter;
     private EditText mEditBusNumber;
 
     @UiThread
     private void buttonEnterBusClick() {
-        if (TextUtils.isEmpty(getBusID())) {
+        if (TextUtils.isEmpty(getBusId())) {
             Log.d(TAG, "empty bus ID; cannot trigger location updates");
-            displayToast(getResources().getString(R.string.empty_bus_id_message));
+            displayMessage(getString(R.string.empty_bus_id_message));
             return;
         }
 
@@ -50,23 +54,6 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener, 
         }
     }
 
-    @UiThread
-    private void buttonLeaveBusClick() {
-        mPresenter.stopLocationUpdate();
-    }
-
-    @Override
-    @MainThread
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        Log.v(TAG, "> onCreate(" + savedInstanceState + ")");
-
-        super.onCreate(savedInstanceState);
-
-        mPresenter = new TrackBusPresenterImpl(getActivity(), this);
-
-        Log.v(TAG, "< onCreate(" + savedInstanceState + ")");
-    }
-
     @Override
     @MainThread
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -75,13 +62,7 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener, 
 
         View rootView = inflater.inflate(R.layout.fragment_track_bus, container, false);
 
-        mEditBusNumber = (EditText) rootView.findViewById(R.id.editBusNumber);
-        if (mPresenter.isUpdateLocationServiceRunning()) {
-            String busId = mPresenter.getBusId();
-            Log.d(TAG, "restoring bus ID to " + busId);
-            mEditBusNumber.setText(busId);
-            disableBusID();
-        }
+        mEditBusNumber = (EditText) rootView.findViewById(R.id.editBusID);
 
         Button buttonEnterBus = (Button) rootView.findViewById(R.id.buttonEnterBus);
         buttonEnterBus.setOnClickListener(this);
@@ -96,26 +77,13 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener, 
 
     @Override
     @MainThread
-    public void onStart() {
-        Log.v(TAG, "> setUp()");
+    public void onActivityCreated(Bundle savedInstanceState) {
+        Log.v(TAG, "> onActivityCreated(" + savedInstanceState + ")");
 
-        super.onStart();
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(TRACK_BUS_LOADER_ID, null, this);
 
-        mPresenter.setUp();
-
-        Log.v(TAG, "< setUp()");
-    }
-
-    @Override
-    @MainThread
-    public void onStop() {
-        Log.v(TAG, "> tearDown()");
-
-        super.onStop();
-
-        mPresenter.tearDown();
-
-        Log.v(TAG, "< tearDown()");
+        Log.v(TAG, "< onActivityCreated(" + savedInstanceState + ")");
     }
 
     @Override
@@ -134,7 +102,7 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener, 
                 } else {
                     if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
                         Log.d(TAG, "user did NOT grant permission");
-                        displayToast(getString(R.string.fine_location_permission_rationale));
+                        displayMessage(getString(R.string.fine_location_permission_rationale));
                     } else {
                         View rootView = getView();
                         if (rootView != null) {
@@ -176,7 +144,7 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener, 
                 buttonEnterBusClick();
                 break;
             case R.id.buttonLeaveBus:
-                buttonLeaveBusClick();
+                mPresenter.stopLocationUpdate();
                 break;
             default:
                 Log.wtf(TAG, "I don't know how to handle this view's click: " + v.getId());
@@ -186,28 +154,69 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener, 
     }
 
     @Override
+    @MainThread
+    public Loader<TrackBusMvp.Presenter> onCreateLoader(int id, Bundle args) {
+        Log.v(TAG, "> onCreateLoader(" + id + ", " + args + ")");
+
+        Loader<TrackBusMvp.Presenter> presenterLoader = null;
+
+        switch (id) {
+            case TRACK_BUS_LOADER_ID:
+                presenterLoader = new TrackBusPresenterLoader(getContext().getApplicationContext());
+                break;
+            default:
+                Log.wtf(TAG, "I don't know how to handle this loader ID: " + id);
+        }
+
+        Log.v(TAG, "< onCreateLoader(" + id + ", " + args + ")");
+
+        return presenterLoader;
+    }
+
+    @Override
+    @MainThread
+    public void onLoaderReset(Loader<TrackBusMvp.Presenter> loader) {
+        Log.v(TAG, "> onLoaderReset([Loader<Presenter>])");
+
+        mPresenter = null;
+
+        Log.v(TAG, "< onLoaderReset([Loader<Presenter>])");
+    }
+
+    @Override
+    @MainThread
+    public void onLoadFinished(Loader<TrackBusMvp.Presenter> loader, TrackBusMvp.Presenter data) {
+        Log.v(TAG, "> onLoadFinished([Loader<Presenter>], [Presenter])");
+
+        mPresenter = data;
+        mPresenter.onAttach(this);
+
+        Log.v(TAG, "< onLoadFinished([Loader<Presenter>], [Presenter])");
+    }
+
+    @Override
     @UiThread
-    public @NonNull String getBusID() {
+    public @NonNull String getBusId() {
         return mEditBusNumber.getText().toString();
     }
 
     @Override
     @UiThread
-    public void displayToast(@Nullable String text) {
-        Log.d(TAG, "displaying Toast: " + text);
+    public void displayMessage(@Nullable String text) {
+        Log.d(TAG, "displaying message: " + text);
 
         Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     @UiThread
-    public void enableBusID() {
+    public void enableBusId() {
         mEditBusNumber.setEnabled(true);
     }
 
     @Override
     @UiThread
-    public void disableBusID() {
+    public void disableBusId() {
         mEditBusNumber.setEnabled(false);
     }
 }

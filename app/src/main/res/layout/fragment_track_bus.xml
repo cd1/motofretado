@@ -12,17 +12,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/bus_number_text"
-            android:id="@+id/textBusNumber"
+            android:id="@+id/textBusID"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
-            android:labelFor="@+id/editBusNumber" />
+            android:labelFor="@+id/editBusID" />
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/editBusNumber"
-            android:layout_below="@id/textBusNumber"
-            android:layout_alignStart="@id/textBusNumber"
+            android:id="@+id/editBusID"
+            android:layout_below="@id/textBusID"
+            android:layout_alignStart="@id/textBusID"
             android:inputType="text" />
 
         <Button
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:text="@string/enter_bus_button"
             android:id="@+id/buttonEnterBus"
-            android:layout_below="@+id/editBusNumber"/>
+            android:layout_below="@+id/editBusID"/>
 
         <Button
             android:layout_width="match_parent"

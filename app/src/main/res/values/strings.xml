@@ -15,7 +15,5 @@
     <string name="empty_bus_id_message">You need to enter the bus number</string>
     <string name="update_network_error">Failed to update the bus location</string>
 
-    <string name="stop_location_update">The bus location won\'t be sent anymore</string>
-
     <string name="track_bus_title">Track bus</string>
 </resources>
