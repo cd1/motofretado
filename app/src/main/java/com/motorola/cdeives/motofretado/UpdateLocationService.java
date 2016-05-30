@@ -4,7 +4,9 @@ import android.Manifest;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -50,11 +52,13 @@ public class UpdateLocationService extends Service
     private static final int FASTEST_UPDATE_INTERVAL = 1000; // ms
     private static final int NOTIFICATION_ID = 1;
     private static final int MAIN_ACTIVITY_INTENT_CODE = 1;
+    private static final int STOP_ACTION_INTENT_CODE = 2;
 
     private Messenger mMessenger;
     private String mBusId;
     private GoogleApiClient mGoogleApiClient;
     private RequestQueue mRequestQueue;
+    private BroadcastReceiver mReceiver;
 
     @Override
     @MainThread
@@ -67,6 +71,7 @@ public class UpdateLocationService extends Service
                 .addApi(LocationServices.API)
                 .build();
         mRequestQueue = Volley.newRequestQueue(this);
+        mReceiver = new UpdateLocationBroadcastReceiver();
 
         Log.v(TAG, "< onCreate()");
     }
@@ -84,6 +89,9 @@ public class UpdateLocationService extends Service
 
         Log.d(TAG, "opening connection to Google Play Services");
         mGoogleApiClient.connect();
+
+        Log.d(TAG, "registering BroadcastReceiver");
+        registerReceiver(mReceiver, new IntentFilter(UpdateLocationBroadcastReceiver.STOP_SERVICE_ACTION));
 
         Log.v(TAG, "< onStartCommand(" + intent + ", " + flags + ", " + startId + ")");
 
@@ -108,6 +116,8 @@ public class UpdateLocationService extends Service
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         Log.d(TAG, "closing connection to Google Play Services");
         mGoogleApiClient.disconnect();
+        Log.d(TAG, "unregistering BroadcastReceiver");
+        unregisterReceiver(mReceiver);
 
         Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_ENABLE_BUS_ID);
         try {
@@ -144,11 +154,15 @@ public class UpdateLocationService extends Service
             PendingIntent pendingContent = PendingIntent.getActivity(this, MAIN_ACTIVITY_INTENT_CODE,
                     activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+            Intent intentStop = new Intent(UpdateLocationBroadcastReceiver.STOP_SERVICE_ACTION);
+            PendingIntent pendingStop = PendingIntent.getBroadcast(this, STOP_ACTION_INTENT_CODE,
+                    intentStop, PendingIntent.FLAG_UPDATE_CURRENT);
+
             Notification notification = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.ic_stat_notify_bus)
                     .setContentTitle(getString(R.string.notification_title, mBusId))
                     .setContentIntent(pendingContent)
-                    .addAction(R.drawable.ic_cancel, getString(R.string.notification_stop_title), null)
+                    .addAction(R.drawable.ic_cancel, getString(R.string.notification_stop_title), pendingStop)
                     .build();
             Log.d(TAG, "marking the service as foreground / adding persistent notification");
             startForeground(NOTIFICATION_ID, notification);

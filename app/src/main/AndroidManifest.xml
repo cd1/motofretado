@@ -32,6 +32,9 @@
         <service
             android:name=".UpdateLocationService"
             android:exported="false" />
+
+        <receiver
+            android:name=".UpdateLocationBroadcastReceiver" />
     </application>
 
 </manifest>
