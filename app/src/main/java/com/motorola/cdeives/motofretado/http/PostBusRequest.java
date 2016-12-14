@@ -15,7 +15,7 @@ import java.util.Map;
 public class PostBusRequest extends JsonObjectRequest {
     private static final String TAG = PostBusRequest.class.getSimpleName();
 
-    private Bus mBus;
+    private final Bus mBus;
 
     public <L extends Response.Listener<JSONObject> & Response.ErrorListener> PostBusRequest(@NonNull Bus bus, @NonNull L listener) {
         super(Method.POST, Util.SERVER_URL + "/bus", null, listener, listener);

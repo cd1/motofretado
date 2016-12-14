@@ -10,7 +10,7 @@ import android.util.Log;
 
 import com.motorola.cdeives.motofretado.http.Bus;
 
-public class ViewMapPresenter implements ViewMapMvp.Presenter {
+class ViewMapPresenter implements ViewMapMvp.Presenter {
     private static final String TAG = ViewMapPresenter.class.getSimpleName();
     private static final int MSG_VIEW_BUS_LOCATION = 0;
     private static final int REPEAT_DELAY = 2500; // ms
@@ -20,7 +20,7 @@ public class ViewMapPresenter implements ViewMapMvp.Presenter {
     private ViewMapMvp.Model mModel;
     private ViewMapMvp.View mView;
 
-    public ViewMapPresenter(Context context) {
+    ViewMapPresenter(Context context) {
         mModel = new ViewMapModel(context.getApplicationContext());
     }
 
@@ -78,7 +78,7 @@ public class ViewMapPresenter implements ViewMapMvp.Presenter {
     private class MyHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
-            Log.v(TAG, "> onHandleMessage(" + msg + ")");
+            Log.v(TAG, "> onHandleMessage(msg=" + msg + ")");
 
             switch (msg.what) {
                 case MSG_VIEW_BUS_LOCATION:
@@ -101,7 +101,7 @@ public class ViewMapPresenter implements ViewMapMvp.Presenter {
                     Log.wtf(TAG, "unexpected message code: " + msg.what);
             }
 
-            Log.v(TAG, "< onHandleMessage(" + msg + ")");
+            Log.v(TAG, "< onHandleMessage(msg=" + msg + ")");
         }
     }
 }

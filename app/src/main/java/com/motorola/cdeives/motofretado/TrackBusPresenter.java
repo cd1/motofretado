@@ -9,14 +9,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.util.Log;
 
-public class TrackBusPresenter implements TrackBusMvp.Presenter {
+class TrackBusPresenter implements TrackBusMvp.Presenter {
     private static final String TAG = TrackBusPresenter.class.getSimpleName();
 
-    private @NonNull Context mContext;
+    private final @NonNull Context mContext;
     private String mBusId;
     private TrackBusMvp.View mView;
 
-    public TrackBusPresenter(@NonNull Context context) {
+    TrackBusPresenter(@NonNull Context context) {
         mContext = context;
     }
 
@@ -39,8 +39,8 @@ public class TrackBusPresenter implements TrackBusMvp.Presenter {
     @Override
     @UiThread
     public void startLocationUpdate() {
-        Messenger messenger = new Messenger(new MyHandler());
         mBusId = mView.getBusId();
+        Messenger messenger = new Messenger(new MyHandler());
 
         Intent serviceIntent = new Intent(mContext, UpdateLocationService.class);
         serviceIntent.putExtra(UpdateLocationService.EXTRA_BUS_ID, mBusId);
@@ -94,12 +94,6 @@ public class TrackBusPresenter implements TrackBusMvp.Presenter {
         }
     }
 
-    @Override
-    @UiThread
-    public String getBusId() {
-        return mBusId;
-    }
-
     class MyHandler extends Handler {
         static final int MSG_DISPLAY_TOAST = 0;
         static final int MSG_ENABLE_BUS_ID = 1;
@@ -108,7 +102,7 @@ public class TrackBusPresenter implements TrackBusMvp.Presenter {
         @Override
         @UiThread
         public void handleMessage(Message msg) {
-            Log.v(TAG, "> handleMessage(" + msg + ")");
+            Log.v(TAG, "> handleMessage(msg=" + msg + ")");
 
             switch (msg.what) {
                 case MSG_DISPLAY_TOAST:
@@ -124,7 +118,7 @@ public class TrackBusPresenter implements TrackBusMvp.Presenter {
                     Log.wtf(TAG, "unexpected message code: " + msg.what);
             }
 
-            Log.v(TAG, "< handleMessage(" + msg + ")");
+            Log.v(TAG, "< handleMessage(msg=" + msg + ")");
         }
     }
 }

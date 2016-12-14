@@ -4,11 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 
-public interface TrackBusMvp {
-    interface Model {
-
-    }
-
+interface TrackBusMvp {
     interface View {
         @UiThread
         @NonNull
@@ -30,7 +26,5 @@ public interface TrackBusMvp {
         void startLocationUpdate();
         @UiThread
         void stopLocationUpdate();
-        @UiThread
-        String getBusId();
     }
 }

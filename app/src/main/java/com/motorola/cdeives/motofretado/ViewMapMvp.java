@@ -5,7 +5,7 @@ import android.support.annotation.UiThread;
 
 import com.motorola.cdeives.motofretado.http.Bus;
 
-public interface ViewMapMvp {
+interface ViewMapMvp {
      interface Model {
         interface Listener<T> {
             void onSuccess(T data);

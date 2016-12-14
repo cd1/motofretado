@@ -50,7 +50,6 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
             Log.d(TAG, "the app doesn't have location permission; requesting it to the user");
             requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_FINE_LOCATION_PERMISSION);
-
         }
     }
 

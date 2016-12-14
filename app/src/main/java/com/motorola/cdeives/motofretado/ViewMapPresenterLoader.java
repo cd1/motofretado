@@ -5,12 +5,12 @@ import android.support.annotation.MainThread;
 import android.support.v4.content.Loader;
 import android.util.Log;
 
-public class ViewMapPresenterLoader extends Loader<ViewMapMvp.Presenter> {
+class ViewMapPresenterLoader extends Loader<ViewMapMvp.Presenter> {
     private static final String TAG = ViewMapPresenterLoader.class.getSimpleName();
 
     private ViewMapMvp.Presenter mPresenter;
 
-    public ViewMapPresenterLoader(Context context) {
+    ViewMapPresenterLoader(Context context) {
         super(context);
     }
 

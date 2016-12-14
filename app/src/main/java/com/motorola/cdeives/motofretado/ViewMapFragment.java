@@ -64,12 +64,12 @@ public class ViewMapFragment extends Fragment
     @Override
     @MainThread
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        Log.v(TAG, "> onActivityCreated(" + savedInstanceState + ")");
+        Log.v(TAG, "> onActivityCreated(savedInstanceState=" + savedInstanceState + ")");
 
         super.onActivityCreated(savedInstanceState);
         getLoaderManager().initLoader(VIEW_MAP_LOADER_ID, null, this);
 
-        Log.v(TAG, "< onActivityCreated(" + savedInstanceState + ")");
+        Log.v(TAG, "< onActivityCreated(savedInstanceState=" + savedInstanceState + ")");
     }
 
     @Override
@@ -123,14 +123,14 @@ public class ViewMapFragment extends Fragment
     @Override
     @MainThread
     public void onSaveInstanceState(Bundle outState) {
-        Log.v(TAG, "> onSaveInstanceState(" + outState + ")");
+        Log.v(TAG, "> onSaveInstanceState(outState=" + outState + ")");
 
         super.onSaveInstanceState(outState);
         if (mMapView != null) {
             mMapView.onSaveInstanceState(outState);
         }
 
-        Log.v(TAG, "< onSaveInstanceState(" + outState + ")");
+        Log.v(TAG, "< onSaveInstanceState(outState=" + outState + ")");
     }
 
     @Override
@@ -165,7 +165,7 @@ public class ViewMapFragment extends Fragment
     @Override
     @UiThread
     public void onClick(View v) {
-        Log.v(TAG, "> onClick(" + getResources().getResourceEntryName(v.getId()) + ")");
+        Log.v(TAG, "> onClick(v=" + getResources().getResourceEntryName(v.getId()) + ")");
 
         switch (v.getId()) {
             case R.id.buttonViewMap:
@@ -175,7 +175,7 @@ public class ViewMapFragment extends Fragment
                 Log.wtf(TAG, "I don't know how to handle this view's click: " + v.getId());
         }
 
-        Log.v(TAG, "< onClick(" + getResources().getResourceEntryName(v.getId()) + ")");
+        Log.v(TAG, "< onClick(v=" + getResources().getResourceEntryName(v.getId()) + ")");
     }
 
     @Override
@@ -190,7 +190,7 @@ public class ViewMapFragment extends Fragment
 
     @Override
     public Loader<ViewMapMvp.Presenter> onCreateLoader(int id, Bundle args) {
-        Log.v(TAG, "> onCreateLoader(" + id + ", " + args + ")");
+        Log.v(TAG, "> onCreateLoader(id=" + id + ", args=" + args + ")");
 
         Loader<ViewMapMvp.Presenter> presenterLoader = null;
 
@@ -202,7 +202,7 @@ public class ViewMapFragment extends Fragment
                 Log.wtf(TAG, "I don't know how to handle this loader ID: " + id);
         }
 
-        Log.v(TAG, "< onCreateLoader(" + id + ", " + args + ")");
+        Log.v(TAG, "< onCreateLoader(id=" + id + ", args=" + args + ")");
 
         return presenterLoader;
     }

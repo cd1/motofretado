@@ -5,12 +5,12 @@ import android.support.annotation.MainThread;
 import android.support.v4.content.Loader;
 import android.util.Log;
 
-public class TrackBusPresenterLoader extends Loader<TrackBusMvp.Presenter> {
+class TrackBusPresenterLoader extends Loader<TrackBusMvp.Presenter> {
     private static final String TAG = TrackBusPresenterLoader.class.getSimpleName();
 
     private TrackBusMvp.Presenter mPresenter;
 
-    public TrackBusPresenterLoader(Context context) {
+    TrackBusPresenterLoader(Context context) {
         super(context);
     }
 

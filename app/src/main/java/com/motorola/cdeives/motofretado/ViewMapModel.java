@@ -17,10 +17,10 @@ import com.motorola.cdeives.motofretado.http.Util;
 
 import org.json.JSONObject;
 
-public class ViewMapModel implements ViewMapMvp.Model {
-    private @NonNull RequestQueue mQueue;
+class ViewMapModel implements ViewMapMvp.Model {
+    private final @NonNull RequestQueue mQueue;
 
-    public ViewMapModel(@NonNull Context context) {
+    ViewMapModel(@NonNull Context context) {
         mQueue = Volley.newRequestQueue(context);
     }
 
@@ -44,7 +44,7 @@ public class ViewMapModel implements ViewMapMvp.Model {
     private class GetBusResponseListener implements Response.Listener<JSONObject>, Response.ErrorListener {
         private final String TAG = ViewMapModel.class.getSimpleName();
 
-        private Listener<Bus> mListener;
+        private final Listener<Bus> mListener;
 
         private GetBusResponseListener(Listener<Bus> listener) {
             mListener = listener;

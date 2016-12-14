@@ -16,7 +16,7 @@ import java.util.Map;
 public class PatchBusRequest extends JsonObjectRequest {
     private static final String TAG = PatchBusRequest.class.getSimpleName();
 
-    private Bus mBus;
+    private final Bus mBus;
 
     public <L extends Response.Listener<JSONObject> & Response.ErrorListener> PatchBusRequest(@NonNull Bus bus, @NonNull L listener) {
         super(Method.PATCH, Util.SERVER_URL + "/bus/" + bus.id, null, listener, listener);

@@ -79,7 +79,7 @@ public class UpdateLocationService extends Service
     @Override
     @MainThread
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.v(TAG, "> onStartCommand(" + intent + ", " + flags + ", " + startId + ")");
+        Log.v(TAG, "> onStartCommand(intent=" + intent + ", flags=" + flags + ", startId=" + startId + ")");
 
         Bundle extras = intent.getExtras();
         mMessenger = (Messenger) extras.get(EXTRA_MESSENGER);
@@ -93,7 +93,7 @@ public class UpdateLocationService extends Service
         Log.d(TAG, "registering BroadcastReceiver");
         registerReceiver(mReceiver, new IntentFilter(UpdateLocationBroadcastReceiver.STOP_SERVICE_ACTION));
 
-        Log.v(TAG, "< onStartCommand(" + intent + ", " + flags + ", " + startId + ")");
+        Log.v(TAG, "< onStartCommand(intent=" + intent + ", flags=" + flags + ", startId=" + startId + ")");
 
         return START_NOT_STICKY;
     }
@@ -102,7 +102,7 @@ public class UpdateLocationService extends Service
     @MainThread
     public IBinder onBind(Intent intent) {
         // we're not a bound service, so return null here
-        Log.v(TAG, "onBind(" + intent + ")");
+        Log.v(TAG, "onBind(intent=" + intent + ")");
 
         return null;
     }
@@ -130,8 +130,8 @@ public class UpdateLocationService extends Service
     }
 
     @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.v(TAG, "> onConnected(" + bundle + ")");
+    public void onConnected(@Nullable Bundle connectionHint) {
+        Log.v(TAG, "> onConnected(connectionHint=" + connectionHint + ")");
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -175,12 +175,12 @@ public class UpdateLocationService extends Service
             }
         }
 
-        Log.v(TAG, "< onConnected(" + bundle + ")");
+        Log.v(TAG, "< onConnected(connectionHint=" + connectionHint + ")");
     }
 
     @Override
-    public void onConnectionSuspended(int i) {
-        Log.v(TAG, "> onConnectionSuspended(" + i + ")");
+    public void onConnectionSuspended(int cause) {
+        Log.v(TAG, "> onConnectionSuspended(cause=" + cause + ")");
 
         Log.w(TAG, "Google Play Services connection was suspended!");
         Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_ENABLE_BUS_ID);
@@ -190,12 +190,12 @@ public class UpdateLocationService extends Service
             Log.e(TAG, "error sending message to enable bus ID", ex);
         }
 
-        Log.v(TAG, "< onConnectionSuspended(" + i + ")");
+        Log.v(TAG, "< onConnectionSuspended(cause=" + cause + ")");
     }
 
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.v(TAG, "> onConnectionFailed(" + connectionResult + ")");
+    public void onConnectionFailed(@NonNull ConnectionResult result) {
+        Log.v(TAG, "> onConnectionFailed(result=" + result + ")");
 
         Log.w(TAG, "Google Play Services connection failed!");
         Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_ENABLE_BUS_ID);
@@ -205,12 +205,12 @@ public class UpdateLocationService extends Service
             Log.e(TAG, "error sending message to enable bus ID", ex);
         }
 
-        Log.v(TAG, "< onConnectionFailed(" + connectionResult + ")");
+        Log.v(TAG, "< onConnectionFailed(result=" + result + ")");
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.v(TAG, "> onLocationChanged(" + location + ")");
+        Log.v(TAG, "> onLocationChanged(location=" + location + ")");
 
         Bus bus = new Bus();
         bus.id = mBusId;
@@ -222,16 +222,16 @@ public class UpdateLocationService extends Service
         Log.d(TAG, "PATCH /bus/" + mBusId);
         mRequestQueue.add(request);
 
-        Log.v(TAG, "< onLocationChanged(" + location + ")");
+        Log.v(TAG, "< onLocationChanged(location=" + location + ")");
     }
 
     private class PatchBusResponseListener
             implements Response.Listener<JSONObject>, Response.ErrorListener {
         private final String TAG = getClass().getSimpleName();
 
-        private @NonNull Bus mBus;
+        private final @NonNull Bus mBus;
 
-        public PatchBusResponseListener(@NonNull Bus bus) {
+        PatchBusResponseListener(@NonNull Bus bus) {
             mBus = bus;
         }
 
@@ -246,7 +246,7 @@ public class UpdateLocationService extends Service
 
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.v(TAG, "> onErrorResponse(" + error + ")");
+            Log.v(TAG, "> onErrorResponse(error=" + error + ")");
 
             switch (error.networkResponse.statusCode) {
                 case HttpURLConnection.HTTP_NOT_FOUND: // 404 Not Found
@@ -266,7 +266,7 @@ public class UpdateLocationService extends Service
                     }
             }
 
-            Log.v(TAG, "< onErrorResponse(" + error + ")");
+            Log.v(TAG, "< onErrorResponse(error=" + error + ")");
         }
     }
 
@@ -283,7 +283,7 @@ public class UpdateLocationService extends Service
 
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.v(TAG, "> onErrorResponse(" + error + ")");
+            Log.v(TAG, "> onErrorResponse(error=" + error + ")");
 
             switch (error.networkResponse.statusCode) {
                 case HttpURLConnection.HTTP_CONFLICT: // 409 Conflict
@@ -305,7 +305,7 @@ public class UpdateLocationService extends Service
                     }
             }
 
-            Log.v(TAG, "< onErrorResponse(" + error + ")");
+            Log.v(TAG, "< onErrorResponse(error=" + error + ")");
         }
     }
 }
