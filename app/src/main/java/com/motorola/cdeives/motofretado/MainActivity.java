@@ -1,53 +1,60 @@
 package com.motorola.cdeives.motofretado;
 
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.support.annotation.MainThread;
-import android.support.annotation.UiThread;
+import android.support.annotation.NonNull;
+import android.support.design.internal.BottomNavigationMenuView;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
-
-import com.roughike.bottombar.BottomBar;
-import com.roughike.bottombar.OnMenuTabClickListener;
+import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity
-        implements OnMenuTabClickListener {
+        implements BottomNavigationView.OnNavigationItemSelectedListener{
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int DEFAULT_NAVIGATION_INDEX = 0;
+    private static final String TRACK_BUS_FRAGMENT_TAG = "TrackBus";
+    private static final String VIEW_MAP_FRAGMENT_TAG = "ViewMap";
 
-    private BottomBar mBottomBar;
+    private void setCurrentFragment(String tag) {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
+        if (fragment == null) {
+            switch (tag) {
+                case TRACK_BUS_FRAGMENT_TAG:
+                    fragment = new TrackBusFragment();
+                    break;
+                case VIEW_MAP_FRAGMENT_TAG:
+                    fragment = new ViewMapFragment();
+                    break;
+                default:
+                    Log.wtf(TAG, "unexpected Fragment tag; using default Fragment");
+                    fragment = new TrackBusFragment();
+            }
+        }
 
-    private void setCurrentFragment(Fragment fragment) {
         FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
-        tx.replace(R.id.fragment_view_group, fragment);
+        tx.replace(R.id.fragment_view_group, fragment, tag);
         tx.commit();
     }
 
     @Override
     @MainThread
     protected void onCreate(Bundle savedInstanceState) {
-        Log.v(TAG, "> onCreate(" + savedInstanceState + ")");
+        Log.v(TAG, "> onCreate(savedInstanceState=" + savedInstanceState + ")");
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        BottomNavigationView bottomNavigationView =
+                (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener(this);
+        ((BottomNavigationMenuView) bottomNavigationView.getChildAt(0))
+                .getChildAt(DEFAULT_NAVIGATION_INDEX).performClick();
 
-        mBottomBar = BottomBar.attach(this, savedInstanceState);
-        mBottomBar.setItemsFromMenu(R.menu.bottombar, this);
-
-        Log.v(TAG, "< onCreate(" + savedInstanceState + ")");
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        Log.v(TAG, "> onSaveInstanceState(" + outState + ")");
-
-        super.onSaveInstanceState(outState);
-        mBottomBar.onSaveInstanceState(outState);
-
-        Log.v(TAG, "< onSaveInstanceState(" + outState + ")");
+        Log.v(TAG, "< onCreate(savedInstanceState=" + savedInstanceState + ")");
     }
 
     @Override
@@ -58,35 +65,27 @@ public class MainActivity extends AppCompatActivity
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
 
-        Log.v(TAG, "> onCreateOptionsMenu([Menu])");
-
+        Log.v(TAG, "< onCreateOptionsMenu([Menu]): true");
         return true;
     }
 
     @Override
-    @UiThread
-    public void onMenuTabSelected(@IdRes int menuItemId) {
-        Log.v(TAG, "> onMenuTabSelected(" + getResources().getResourceEntryName(menuItemId) + ")");
+    @MainThread
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        Log.v(TAG, "> onNavigationItemSelected(item=" + item + ")");
 
-        switch (menuItemId) {
+        switch (item.getItemId()) {
             case R.id.bottom_bar_track_bus:
-                setCurrentFragment(new TrackBusFragment());
+                setCurrentFragment(TRACK_BUS_FRAGMENT_TAG);
                 break;
             case R.id.bottom_bar_view_map:
-                Fragment fragment = new ViewMapFragment();
-                setCurrentFragment(fragment);
+                setCurrentFragment(VIEW_MAP_FRAGMENT_TAG);
                 break;
             default:
-                Log.wtf(TAG, "I don't know how to handle this tab's click: " +
-                        getResources().getResourceEntryName(menuItemId));
+                Log.wtf(TAG, "unexpected menu item click: " + item);
         }
 
-        Log.v(TAG, "< onMenuTabSelected(" + getResources().getResourceEntryName(menuItemId) + ")");
-    }
-
-    @Override
-    @UiThread
-    public void onMenuTabReSelected(@IdRes int menuItemId) {
-        Log.v(TAG, "onMenuTabReSelected(" + getResources().getResourceEntryName(menuItemId) + ")");
+        Log.v(TAG, "< onNavigationItemSelected(item=" + item + "): true");
+        return true;
     }
 }
