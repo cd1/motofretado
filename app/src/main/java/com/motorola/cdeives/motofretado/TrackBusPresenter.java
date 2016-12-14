@@ -104,18 +104,22 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
         public void handleMessage(Message msg) {
             Log.v(TAG, "> handleMessage(msg=" + msg + ")");
 
-            switch (msg.what) {
-                case MSG_DISPLAY_TOAST:
-                    mView.displayMessage(mContext.getString(msg.arg1));
-                    break;
-                case MSG_ENABLE_BUS_ID:
-                    mView.enableBusId();
-                    break;
-                case MSG_DISABLE_BUS_ID:
-                    mView.disableBusId();
-                    break;
-                default:
-                    Log.wtf(TAG, "unexpected message code: " + msg.what);
+            if (mView != null) {
+                switch (msg.what) {
+                    case MSG_DISPLAY_TOAST:
+                        mView.displayMessage(mContext.getString(msg.arg1));
+                        break;
+                    case MSG_ENABLE_BUS_ID:
+                        mView.enableBusId();
+                        break;
+                    case MSG_DISABLE_BUS_ID:
+                        mView.disableBusId();
+                        break;
+                    default:
+                        Log.wtf(TAG, "unexpected message code: " + msg.what);
+                }
+            } else {
+                Log.d(TAG, "ignoring message because mView is null");
             }
 
             Log.v(TAG, "< handleMessage(msg=" + msg + ")");

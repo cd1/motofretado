@@ -177,6 +177,7 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
     public void onLoaderReset(Loader<TrackBusMvp.Presenter> loader) {
         Log.v(TAG, "> onLoaderReset([Loader<Presenter>])");
 
+        mPresenter.onDetach();
         mPresenter = null;
 
         Log.v(TAG, "< onLoaderReset([Loader<Presenter>])");
