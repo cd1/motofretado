@@ -200,13 +200,16 @@ public class UpdateLocationService extends Service
     public void onConnectionFailed(@NonNull ConnectionResult result) {
         Log.v(TAG, "> onConnectionFailed(result=" + result + ")");
 
-        Log.w(TAG, "Google Play Services connection failed!");
-        Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_ENABLE_BUS_ID);
+        Log.e(TAG, "Google Play Services connection failed: " + result.getErrorMessage());
+        Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_DISPLAY_TOAST,
+                R.string.gms_connection_failed, 0);
         try {
             mMessenger.send(msg);
         } catch (RemoteException ex) {
-            Log.e(TAG, "error sending message to enable bus ID", ex);
+            Log.e(TAG, "error sending message to display toast", ex);
         }
+
+        stopSelf();
 
         Log.v(TAG, "< onConnectionFailed(result=" + result + ")");
     }
