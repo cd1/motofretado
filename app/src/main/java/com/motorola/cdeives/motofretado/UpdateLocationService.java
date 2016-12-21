@@ -112,10 +112,13 @@ public class UpdateLocationService extends Service
     public void onDestroy() {
         Log.v(TAG, "> onDestroy()");
 
-        Log.d(TAG, "unsubscribing from location updates");
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-        Log.d(TAG, "closing connection to Google Play Services");
-        mGoogleApiClient.disconnect();
+        if (mGoogleApiClient.isConnected()) {
+            Log.d(TAG, "unsubscribing from location updates");
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+            Log.d(TAG, "closing connection to Google Play Services");
+            mGoogleApiClient.disconnect();
+        }
+
         Log.d(TAG, "unregistering BroadcastReceiver");
         unregisterReceiver(mReceiver);
 
@@ -248,22 +251,24 @@ public class UpdateLocationService extends Service
         public void onErrorResponse(VolleyError error) {
             Log.v(TAG, "> onErrorResponse(error=" + error + ")");
 
-            switch (error.networkResponse.statusCode) {
-                case HttpURLConnection.HTTP_NOT_FOUND: // 404 Not Found
-                    JsonObjectRequest request = new PostBusRequest(mBus, new PostBusResponseListener());
-                    Log.d(TAG, "POST /bus");
-                    mRequestQueue.add(request);
-                    break;
-                default:
-                    Error httpError = Util.getGsonInstance().fromJson(new String(error.networkResponse.data), Error.class);
-                    Log.e(TAG, "unexpected error PATCHing bus: " + httpError.details + "(" + httpError.status + ")", error);
+            if (error.networkResponse != null) {
+                switch (error.networkResponse.statusCode) {
+                    case HttpURLConnection.HTTP_NOT_FOUND: // 404 Not Found
+                        JsonObjectRequest request = new PostBusRequest(mBus, new PostBusResponseListener());
+                        Log.d(TAG, "POST /bus");
+                        mRequestQueue.add(request);
+                        break;
+                    default:
+                        Error httpError = Util.getGsonInstance().fromJson(new String(error.networkResponse.data), Error.class);
+                        Log.e(TAG, "unexpected error PATCHing bus: " + httpError.details + "(" + httpError.status + ")", error);
 
-                    Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_DISPLAY_TOAST, R.string.update_network_error, 0);
-                    try {
-                        mMessenger.send(msg);
-                    } catch (RemoteException ex) {
-                        Log.e(TAG, "error sending message to display toast", ex);
-                    }
+                        Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_DISPLAY_TOAST, R.string.update_network_error, 0);
+                        try {
+                            mMessenger.send(msg);
+                        } catch (RemoteException ex) {
+                            Log.e(TAG, "error sending message to display toast", ex);
+                        }
+                }
             }
 
             Log.v(TAG, "< onErrorResponse(error=" + error + ")");
