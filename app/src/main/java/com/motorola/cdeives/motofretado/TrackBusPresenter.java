@@ -28,6 +28,9 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
     @UiThread
     public void onAttach(TrackBusMvp.View view) {
         mView = view;
+        if (isServiceRunning()) {
+            mView.disableBusId();
+        }
     }
 
     @Override
