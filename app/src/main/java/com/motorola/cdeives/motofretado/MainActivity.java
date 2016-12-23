@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity
         Log.v(TAG, "> onCreateOptionsMenu([Menu])");
 
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main, menu);
+        inflater.inflate(R.menu.activity_main, menu);
 
         Log.v(TAG, "< onCreateOptionsMenu([Menu]): true");
         return true;
