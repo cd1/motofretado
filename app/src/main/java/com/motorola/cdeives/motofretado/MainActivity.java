@@ -19,6 +19,9 @@ public class MainActivity extends AppCompatActivity
     private static final int DEFAULT_NAVIGATION_INDEX = 0;
     private static final String TRACK_BUS_FRAGMENT_TAG = "TrackBus";
     private static final String VIEW_MAP_FRAGMENT_TAG = "ViewMap";
+    private static final String BOTTOM_NAVIGATION_INDEX_KEY = "bottomNavigationIndexKey";
+
+    private BottomNavigationView mBottomNavigationView;
 
     private void setCurrentFragment(String tag) {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
@@ -48,10 +51,9 @@ public class MainActivity extends AppCompatActivity
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        BottomNavigationView bottomNavigationView =
-                (BottomNavigationView) findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setOnNavigationItemSelectedListener(this);
-        ((BottomNavigationMenuView) bottomNavigationView.getChildAt(0))
+        mBottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        mBottomNavigationView.setOnNavigationItemSelectedListener(this);
+        ((BottomNavigationMenuView) mBottomNavigationView.getChildAt(0))
                 .getChildAt(DEFAULT_NAVIGATION_INDEX).performClick();
 
         Log.v(TAG, "< onCreate(savedInstanceState=" + savedInstanceState + ")");
@@ -87,5 +89,39 @@ public class MainActivity extends AppCompatActivity
 
         Log.v(TAG, "< onNavigationItemSelected(item=" + item + "): true");
         return true;
+    }
+
+    @Override
+    @MainThread
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.v(TAG, "> onSaveInstanceState(outState=" + outState+ ")");
+
+        super.onSaveInstanceState(outState);
+
+        Menu bottomMenu = mBottomNavigationView.getMenu();
+        for (int i = 0; i < bottomMenu.size(); i++) {
+            if (bottomMenu.getItem(i).isChecked()) {
+                outState.putInt(BOTTOM_NAVIGATION_INDEX_KEY, i);
+                break;
+            }
+        }
+
+        Log.v(TAG, "< onSaveInstanceState(outState=" + outState+ ")");
+    }
+
+    @Override
+    @MainThread
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        Log.v(TAG, "> onRestoreInstanceState(savedInstanceState=" + savedInstanceState + ")");
+
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            int bottomNavigationIndex = savedInstanceState.getInt(BOTTOM_NAVIGATION_INDEX_KEY);
+            ((BottomNavigationMenuView) mBottomNavigationView.getChildAt(0))
+                    .getChildAt(bottomNavigationIndex).performClick();
+        }
+
+        Log.v(TAG, "< onRestoreInstanceState(savedInstanceState=" + savedInstanceState + ")");
     }
 }
