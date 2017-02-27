@@ -122,11 +122,11 @@ public class UpdateLocationService extends Service
         Log.d(TAG, "unregistering BroadcastReceiver");
         unregisterReceiver(mReceiver);
 
-        Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_ENABLE_BUS_ID);
+        Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_SERVICE_DISCONNECTED);
         try {
             mMessenger.send(msg);
         } catch (RemoteException ex) {
-            Log.e(TAG, "error sending message to enable bus ID", ex);
+            Log.e(TAG, "error sending message to disconnect service", ex);
         }
 
         Log.v(TAG, "< onDestroy()");
@@ -146,11 +146,12 @@ public class UpdateLocationService extends Service
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
                     locationRequest, this);
 
-            Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_DISABLE_BUS_ID);
+            Message msg = Message.obtain(null,
+                    TrackBusPresenter.MyHandler.MSG_SERVICE_CONNECTED, mBusId);
             try {
                 mMessenger.send(msg);
             } catch (RemoteException ex) {
-                Log.e(TAG, "error sending message to disable bus ID", ex);
+                Log.e(TAG, "error sending message to connect service", ex);
             }
 
             Intent activityIntent = new Intent(this, MainActivity.class);
@@ -189,11 +190,11 @@ public class UpdateLocationService extends Service
         Log.v(TAG, "> onConnectionSuspended(cause=" + cause + ")");
 
         Log.w(TAG, "Google Play Services connection was suspended!");
-        Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_ENABLE_BUS_ID);
+        Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_SERVICE_DISCONNECTED);
         try {
             mMessenger.send(msg);
         } catch (RemoteException ex) {
-            Log.e(TAG, "error sending message to enable bus ID", ex);
+            Log.e(TAG, "error sending message to disconnect service", ex);
         }
 
         Log.v(TAG, "< onConnectionSuspended(cause=" + cause + ")");

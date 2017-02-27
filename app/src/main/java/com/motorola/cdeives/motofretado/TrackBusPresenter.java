@@ -42,11 +42,10 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
     @Override
     @UiThread
     public void startLocationUpdate() {
-        mBusId = mView.getBusId();
         Messenger messenger = new Messenger(new MyHandler());
 
         Intent serviceIntent = new Intent(mContext, UpdateLocationService.class);
-        serviceIntent.putExtra(UpdateLocationService.EXTRA_BUS_ID, mBusId);
+        serviceIntent.putExtra(UpdateLocationService.EXTRA_BUS_ID, mView.getBusId());
         serviceIntent.putExtra(UpdateLocationService.EXTRA_MESSENGER, messenger);
         Log.d(TAG, "starting service " + serviceIntent.getComponent());
         mContext.startService(serviceIntent);
@@ -99,8 +98,8 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
 
     class MyHandler extends Handler {
         static final int MSG_DISPLAY_TOAST = 0;
-        static final int MSG_ENABLE_BUS_ID = 1;
-        static final int MSG_DISABLE_BUS_ID = 2;
+        static final int MSG_SERVICE_CONNECTED = 1;
+        static final int MSG_SERVICE_DISCONNECTED = 2;
 
         @Override
         @UiThread
@@ -112,10 +111,16 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
                     case MSG_DISPLAY_TOAST:
                         mView.displayMessage(mContext.getString(msg.arg1));
                         break;
-                    case MSG_ENABLE_BUS_ID:
+                    case MSG_SERVICE_DISCONNECTED:
+                        mBusId = null;
                         mView.enableBusId();
                         break;
-                    case MSG_DISABLE_BUS_ID:
+                    case MSG_SERVICE_CONNECTED:
+                        if (msg.obj instanceof String) {
+                            mBusId = (String) msg.obj;
+                        } else {
+                            Log.wtf(TAG, "unexpected bus ID object type: " + msg.obj.getClass());
+                        }
                         mView.disableBusId();
                         break;
                     default:
