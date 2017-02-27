@@ -74,17 +74,6 @@ public class ViewMapFragment extends Fragment
 
     @Override
     @MainThread
-    public void onStart() {
-        Log.v(TAG, "> onStart()");
-
-        super.onStart();
-        mPresenter.onStart();
-
-        Log.v(TAG, "< onStart()");
-    }
-
-    @Override
-    @MainThread
     public void onResume() {
         Log.v(TAG, "> onResume()");
 

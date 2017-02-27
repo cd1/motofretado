@@ -42,12 +42,6 @@ class ViewMapPresenter implements ViewMapMvp.Presenter {
 
     @Override
     @UiThread
-    public void onStart() {
-        // :-)
-    }
-
-    @Override
-    @UiThread
     public void onStop() {
         mModel.cancelAllRequests();
 

@@ -31,8 +31,6 @@ interface ViewMapMvp {
         @UiThread
         void onDetach();
         @UiThread
-        void onStart();
-        @UiThread
         void onStop();
         @UiThread
         void startViewingBusLocation(@NonNull String busID);
