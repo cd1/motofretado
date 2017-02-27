@@ -31,6 +31,7 @@ public class ViewMapFragment extends Fragment
     private static final int VIEW_MAP_LOADER_ID = 0;
 
     private EditText mEditBusID;
+    private Button mButtonViewMap;
     private GoogleMap mMap;
     private MapView mMapView;
     private ViewMapMvp.Presenter mPresenter;
@@ -58,8 +59,8 @@ public class ViewMapFragment extends Fragment
 
         mEditBusID = (EditText) rootView.findViewById(R.id.editBusID);
 
-        Button buttonViewMap = (Button) rootView.findViewById(R.id.buttonViewMap);
-        buttonViewMap.setOnClickListener(this);
+        mButtonViewMap = (Button) rootView.findViewById(R.id.buttonViewMap);
+        mButtonViewMap.setOnClickListener(this);
 
         mMapView = (MapView) rootView.findViewById(R.id.map_view);
         mMapView.onCreate(savedInstanceState);
@@ -182,6 +183,8 @@ public class ViewMapFragment extends Fragment
         Log.v(TAG, "> onMapReady([GoogleMap])");
 
         mMap = googleMap;
+        mEditBusID.setEnabled(true);
+        mButtonViewMap.setEnabled(true);
 
         Log.v(TAG, "< onMapReady([GoogleMap])");
     }

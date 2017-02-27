@@ -22,7 +22,8 @@
         app:layout_constraintTop_toBottomOf="@+id/textBusID"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:inputType="text" />
+        android:inputType="text"
+        android:enabled="false" />
 
     <Button
         android:id="@+id/buttonViewMap"
@@ -31,7 +32,8 @@
         android:text="@string/view_bus_on_map_button"
         app:layout_constraintTop_toBottomOf="@+id/editBusID"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:enabled="false" />
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/map_view"
