@@ -163,7 +163,10 @@ public class UpdateLocationService extends Service
 
             Notification notification = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.ic_stat_notify_bus)
-                    .setContentTitle(getString(R.string.notification_title, mBusId))
+                    .setContentTitle(getString(R.string.notification_title))
+                    .setContentText(mBusId)
+                    .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                    .setColor(ContextCompat.getColor(this, R.color.colorPrimary))
                     .setContentIntent(pendingContent)
                     .addAction(R.drawable.ic_cancel, getString(R.string.notification_stop_title), pendingStop)
                     .build();

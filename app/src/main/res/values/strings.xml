@@ -9,7 +9,7 @@
     <string name="fine_location_permission_rationale">You need to grant permission to Location Services in order to track the bus route.</string>
     <string name="snackbar_action_settings">Settings</string>
 
-    <string name="notification_title">Bus %s is being tracked</string>
+    <string name="notification_title">Tracking bus location</string>
     <string name="notification_stop_title">Stop</string>
 
     <string name="empty_bus_id_message">You need to enter the bus number</string>
