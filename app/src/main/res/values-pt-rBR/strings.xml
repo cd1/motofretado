@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Moto Fretado</string>
+    <string name="action_feedback">Enviar feedback</string>
+    <string name="action_settings">Configurações</string>
+    <string name="bus_number_text">Número do fretado:</string>
+    <string name="empty_bus_id_message">Você precisa digitar o número do fretado</string>
+    <string name="enter_bus_button">Entrar no fretado</string>
+    <string name="fine_location_permission_not_granted">Permissão de localização não foi dada</string>
+    <string name="fine_location_permission_rationale">Você tem que dar permissão aos Serviços de Localização para poder rastrear a rota do fretado.</string>
+    <string name="gms_connection_failed">Não foi possível obter a localização do seu aparelho. Verifique se você tem a última versão do Google Play Services instalada.</string>
+    <string name="leave_bus_button">Sair do fretado</string>
+    <string name="notification_stop_title">Parar</string>
+    <string name="notification_title">Rastreando a localização do fretado</string>
+    <string name="snackbar_action_settings">Configurações</string>
+    <string name="track_bus_title">Rastrear fretado</string>
+    <string name="update_network_error">Não foi possível atualizar a localização do fretado</string>
+    <string name="view_bus_on_map_button">Visualizar o fretado no mapa</string>
+    <string name="view_map_title">Visualizar mapa</string>
+</resources>
