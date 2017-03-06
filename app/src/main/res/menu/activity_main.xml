@@ -4,7 +4,11 @@
     tools:context="com.motorola.cdeives.motofretado.Main2Activity">
     <item
         android:id="@+id/action_settings"
-        android:orderInCategory="100"
         android:title="@string/action_settings"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_feedback"
+        android:title="@string/action_feedback"
         app:showAsAction="never" />
 </menu>

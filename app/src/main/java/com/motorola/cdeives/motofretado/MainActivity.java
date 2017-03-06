@@ -1,5 +1,6 @@
 package com.motorola.cdeives.motofretado;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
@@ -7,6 +8,7 @@ import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -69,6 +71,31 @@ public class MainActivity extends AppCompatActivity
 
         Log.v(TAG, "< onCreateOptionsMenu([Menu]): true");
         return true;
+    }
+
+    @Override
+    @MainThread
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.v(TAG, "> onOptionsItemSelected(item=" + item + ")");
+
+        boolean isMenuItemProcessed = true;
+
+        switch (item.getItemId()) {
+            case R.id.action_feedback:
+                Intent intent = ShareCompat.IntentBuilder.from(this)
+                        .setType("message/rfc822")
+                        .addEmailTo("cdeives@motorola.com")
+                        .setSubject("Moto Fretado feedback")
+                        .getIntent();
+                startActivity(intent);
+                break;
+            default:
+                Log.wtf(TAG, "unexpected menu item click: " + item);
+                isMenuItemProcessed = super.onOptionsItemSelected(item);
+        }
+
+        Log.v(TAG, "< onOptionsItemSelected(item=" + item + "): " + isMenuItemProcessed);
+        return isMenuItemProcessed;
     }
 
     @Override
