@@ -21,4 +21,6 @@
 
     <string name="view_bus_on_map_button">View bus on map</string>
     <string name="action_feedback">Send feedback</string>
+
+    <string name="detect_automatically_text">Detect movement automatically:</string>
 </resources>

@@ -15,6 +15,8 @@ interface TrackBusMvp {
         void enableBusId();
         @UiThread
         void disableBusId();
+        @UiThread
+        void uncheckSwitchDetectAutomatically();
     }
 
     interface Presenter {
@@ -26,5 +28,9 @@ interface TrackBusMvp {
         void startLocationUpdate();
         @UiThread
         void stopLocationUpdate();
+        @UiThread
+        void startActivityDetection();
+        @UiThread
+        void stopActivityDetection();
     }
 }

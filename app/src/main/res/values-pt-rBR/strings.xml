@@ -17,4 +17,5 @@
     <string name="update_network_error">Não foi possível atualizar a localização do fretado</string>
     <string name="view_bus_on_map_button">Visualizar o fretado no mapa</string>
     <string name="view_map_title">Visualizar mapa</string>
+    <string name="detect_automatically_text">Detectar movimento automaticamente:</string>
 </resources>

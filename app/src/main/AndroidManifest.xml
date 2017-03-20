@@ -4,6 +4,8 @@
 
     <!-- Track the user's location only when inside the bus -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- Detect the user's movement to "enter" and "leave" the bus automatically -->
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
     <application
         android:allowBackup="true"
@@ -30,11 +32,16 @@
         </activity>
 
         <service
+            android:name=".ActivityDetectionService"
+            android:exported="false" />
+
+        <service
             android:name=".UpdateLocationService"
             android:exported="false" />
 
-        <receiver
-            android:name=".UpdateLocationBroadcastReceiver" />
+        <receiver android:name=".ActivityDetectionResultReceiver" />
+
+        <receiver android:name=".UpdateLocationBroadcastReceiver" />
     </application>
 
 </manifest>

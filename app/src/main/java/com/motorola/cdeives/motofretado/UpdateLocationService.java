@@ -124,7 +124,7 @@ public class UpdateLocationService extends Service
         Log.d(TAG, "unregistering BroadcastReceiver");
         unregisterReceiver(mReceiver);
 
-        Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_SERVICE_DISCONNECTED);
+        Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_UPDATE_LOCATION_SERVICE_DISCONNECTED);
         try {
             mMessenger.send(msg);
         } catch (RemoteException ex) {
@@ -150,7 +150,7 @@ public class UpdateLocationService extends Service
                     locationRequest, this);
 
             Message msg = Message.obtain(null,
-                    TrackBusPresenter.MyHandler.MSG_SERVICE_CONNECTED, mBusId);
+                    TrackBusPresenter.MyHandler.MSG_UPDATE_LOCATION_SERVICE_CONNECTED, mBusId);
             try {
                 mMessenger.send(msg);
             } catch (RemoteException ex) {
@@ -194,7 +194,7 @@ public class UpdateLocationService extends Service
         Log.v(TAG, "> onConnectionSuspended(cause=" + cause + ")");
 
         Log.w(TAG, "Google Play Services connection was suspended!");
-        Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_SERVICE_DISCONNECTED);
+        Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_UPDATE_LOCATION_SERVICE_DISCONNECTED);
         try {
             mMessenger.send(msg);
         } catch (RemoteException ex) {
@@ -210,8 +210,7 @@ public class UpdateLocationService extends Service
         Log.v(TAG, "> onConnectionFailed(result=" + result + ")");
 
         Log.e(TAG, "Google Play Services connection failed: " + result.getErrorMessage());
-        Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_DISPLAY_TOAST,
-                R.string.gms_connection_failed, 0);
+        Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_GMS_CONNECTION_FAILED);
         try {
             mMessenger.send(msg);
         } catch (RemoteException ex) {

@@ -21,12 +21,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import java.util.Arrays;
 
 public class TrackBusFragment extends Fragment implements View.OnClickListener,
+        CompoundButton.OnCheckedChangeListener,
         LoaderManager.LoaderCallbacks<TrackBusMvp.Presenter>, TrackBusMvp.View {
     private static final String TAG = TrackBusFragment.class.getSimpleName();
     private static final int REQUEST_FINE_LOCATION_PERMISSION = 0;
@@ -34,6 +37,7 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
 
     private @Nullable TrackBusMvp.Presenter mPresenter;
     private EditText mEditBusNumber;
+    private Switch mSwitchDetectAutomatically;
 
     @UiThread
     private void buttonEnterBusClick() {
@@ -59,6 +63,28 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
         }
     }
 
+    @UiThread
+    private void switchDetectAutomaticallyChange() {
+        boolean isChecked = mSwitchDetectAutomatically.isChecked();
+        if (isChecked && TextUtils.isEmpty(getBusId())) {
+            Log.d(TAG, "empty bus ID; cannot trigger activity detection");
+            displayMessage(getString(R.string.empty_bus_id_message));
+            uncheckSwitchDetectAutomatically();
+            return;
+        }
+
+        if (mPresenter != null) {
+            if (isChecked) {
+                mPresenter.startActivityDetection();
+            } else {
+                mPresenter.stopActivityDetection();
+            }
+        } else {
+            Log.w(TAG, "presenter is null; cannot " + (isChecked ? "start" : "stop")
+                    + " activity detection");
+        }
+    }
+
     @Override
     @MainThread
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,6 +100,9 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
 
         Button buttonLeaveBus = (Button) rootView.findViewById(R.id.buttonLeaveBus);
         buttonLeaveBus.setOnClickListener(this);
+
+        mSwitchDetectAutomatically = (Switch) rootView.findViewById(R.id.switchDetectAutomatically);
+        mSwitchDetectAutomatically.setOnCheckedChangeListener(this);
 
         Log.v(TAG, "< onCreateView([LayoutInflater, ViewGroup, Bundle])");
 
@@ -167,6 +196,22 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
     }
 
     @Override
+    @UiThread
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        Log.v(TAG, "> onCheckedChanged(buttonView=" + buttonView + ", isChecked=" + isChecked + ")");
+
+        switch (buttonView.getId()) {
+            case R.id.switchDetectAutomatically:
+                switchDetectAutomaticallyChange();
+                break;
+            default:
+                Log.wtf(TAG, "change detected by an unexpected button: " + buttonView);
+        }
+
+        Log.v(TAG, "< onCheckedChanged(buttonView=" + buttonView + ", isChecked=" + isChecked + ")");
+    }
+
+    @Override
     @MainThread
     public Loader<TrackBusMvp.Presenter> onCreateLoader(int id, Bundle args) {
         Log.v(TAG, "> onCreateLoader(" + id + ", " + args + ")");
@@ -234,5 +279,11 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
     @UiThread
     public void disableBusId() {
         mEditBusNumber.setEnabled(false);
+    }
+
+    @Override
+    @UiThread
+    public void uncheckSwitchDetectAutomatically() {
+        mSwitchDetectAutomatically.setChecked(false);
     }
 }
