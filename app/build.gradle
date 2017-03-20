@@ -7,8 +7,8 @@ android {
         applicationId "com.motorola.cdeives.motofretado"
         minSdkVersion 23
         targetSdkVersion 25
-        versionCode 1
-        versionName '0.1'
+        versionCode 4
+        versionName '0.4'
         jackOptions {
             enabled true
         }
