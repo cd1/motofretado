@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -25,6 +27,7 @@ public class MainActivity extends AppCompatActivity
 
     private BottomNavigationView mBottomNavigationView;
 
+    @UiThread
     private void setCurrentFragment(String tag) {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
         if (fragment == null) {
@@ -48,7 +51,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     @MainThread
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         Log.v(TAG, "> onCreate(savedInstanceState=" + savedInstanceState + ")");
 
         super.onCreate(savedInstanceState);

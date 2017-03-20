@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.util.Log;
 
@@ -13,9 +14,10 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
     private static final String TAG = TrackBusPresenter.class.getSimpleName();
 
     private final @NonNull Context mContext;
-    private String mBusId;
-    private TrackBusMvp.View mView;
+    private @Nullable String mBusId;
+    private @Nullable TrackBusMvp.View mView;
 
+    @UiThread
     TrackBusPresenter(@NonNull Context context) {
         mContext = context;
     }
@@ -26,7 +28,7 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
 
     @Override
     @UiThread
-    public void onAttach(TrackBusMvp.View view) {
+    public void onAttach(@NonNull TrackBusMvp.View view) {
         mView = view;
         if (isServiceRunning()) {
             mView.disableBusId();
@@ -47,8 +49,12 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
         Intent serviceIntent = new Intent(mContext, UpdateLocationService.class);
         serviceIntent.putExtra(UpdateLocationService.EXTRA_BUS_ID, mView.getBusId());
         serviceIntent.putExtra(UpdateLocationService.EXTRA_MESSENGER, messenger);
-        Log.d(TAG, "starting service " + serviceIntent.getComponent());
-        mContext.startService(serviceIntent);
+        if (mView != null) {
+            Log.d(TAG, "starting service " + mUpdateLocationServiceIntent.getComponent());
+            mContext.startService(mUpdateLocationServiceIntent);
+        } else {
+            Log.w(TAG, "view is null; cannot read bus ID needed to start the location service");
+        }
 
                 /* LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(locationRequest);

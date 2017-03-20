@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.MainThread;
 import android.provider.Settings;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
@@ -32,7 +32,7 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
     private static final int REQUEST_FINE_LOCATION_PERMISSION = 0;
     private static final int TRACK_BUS_LOADER_ID = 0;
 
-    private TrackBusMvp.Presenter mPresenter;
+    private @Nullable TrackBusMvp.Presenter mPresenter;
     private EditText mEditBusNumber;
 
     @UiThread
@@ -43,8 +43,14 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
             return;
         }
 
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
+        if (mPresenter == null) {
+            Log.w(TAG, "presenter is null; cannot start update location service");
+            return;
+        }
+
+        int permissionCheck = ContextCompat.checkSelfPermission(
+                getActivity(), Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
             mPresenter.startLocationUpdate();
         } else {
             Log.d(TAG, "the app doesn't have location permission; requesting it to the user");
@@ -76,7 +82,7 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
 
     @Override
     @MainThread
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         Log.v(TAG, "> onActivityCreated(" + savedInstanceState + ")");
 
         super.onActivityCreated(savedInstanceState);
@@ -97,7 +103,11 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
             case REQUEST_FINE_LOCATION_PERMISSION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "user granted permission");
-                    mPresenter.startLocationUpdate();
+                    if (mPresenter != null) {
+                        mPresenter.startLocationUpdate();
+                    } else {
+                        Log.w(TAG, "presenter is null; cannot start update location service");
+                    }
                 } else {
                     if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
                         Log.d(TAG, "user did NOT grant permission");
@@ -134,19 +144,23 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
     }
 
     @Override
-    @MainThread
-    public void onClick(View v) {
+    @UiThread
+    public void onClick(@NonNull View v) {
         Log.v(TAG, "> onClick(" + getResources().getResourceEntryName(v.getId())+ ")");
 
-        switch (v.getId()) {
-            case R.id.buttonEnterBus:
-                buttonEnterBusClick();
-                break;
-            case R.id.buttonLeaveBus:
-                mPresenter.stopLocationUpdate();
-                break;
-            default:
-                Log.wtf(TAG, "I don't know how to handle this view's click: " + v.getId());
+        if (mPresenter != null) {
+            switch (v.getId()) {
+                case R.id.buttonEnterBus:
+                    buttonEnterBusClick();
+                    break;
+                case R.id.buttonLeaveBus:
+                    mPresenter.stopLocationUpdate();
+                    break;
+                default:
+                    Log.wtf(TAG, "I don't know how to handle this view's click: " + v.getId());
+            }
+        } else {
+            Log.w(TAG, "presenter is null; cannot handle button click");
         }
 
         Log.v(TAG, "< onClick(" + getResources().getResourceEntryName(v.getId())+ ")");
@@ -177,7 +191,9 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
     public void onLoaderReset(Loader<TrackBusMvp.Presenter> loader) {
         Log.v(TAG, "> onLoaderReset([Loader<Presenter>])");
 
-        mPresenter.onDetach();
+        if (mPresenter != null) {
+            mPresenter.onDetach();
+        }
         mPresenter = null;
 
         Log.v(TAG, "< onLoaderReset([Loader<Presenter>])");

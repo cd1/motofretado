@@ -17,6 +17,7 @@ import android.os.RemoteException;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -133,6 +134,7 @@ public class UpdateLocationService extends Service
     }
 
     @Override
+    @MainThread
     public void onConnected(@Nullable Bundle connectionHint) {
         Log.v(TAG, "> onConnected(connectionHint=" + connectionHint + ")");
 
@@ -186,6 +188,7 @@ public class UpdateLocationService extends Service
     }
 
     @Override
+    @MainThread
     public void onConnectionSuspended(int cause) {
         Log.v(TAG, "> onConnectionSuspended(cause=" + cause + ")");
 
@@ -201,6 +204,7 @@ public class UpdateLocationService extends Service
     }
 
     @Override
+    @MainThread
     public void onConnectionFailed(@NonNull ConnectionResult result) {
         Log.v(TAG, "> onConnectionFailed(result=" + result + ")");
 
@@ -219,6 +223,7 @@ public class UpdateLocationService extends Service
     }
 
     @Override
+    @UiThread
     public void onLocationChanged(Location location) {
         Log.v(TAG, "> onLocationChanged(location=" + location + ")");
 
