@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.util.Log;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -33,12 +32,7 @@ class ViewMapModel implements ViewMapMvp.Model {
 
     @Override
     public void cancelAllRequests() {
-        mQueue.cancelAll(new RequestQueue.RequestFilter() {
-            @Override
-            public boolean apply(Request<?> request) {
-                return true;
-            }
-        });
+        mQueue.cancelAll(req -> true);
     }
 
     private class GetBusResponseListener implements Response.Listener<JSONObject>, Response.ErrorListener {

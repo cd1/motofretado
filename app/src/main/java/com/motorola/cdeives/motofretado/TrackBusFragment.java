@@ -21,16 +21,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
 import java.util.Arrays;
 
-public class TrackBusFragment extends Fragment implements View.OnClickListener,
-        CompoundButton.OnCheckedChangeListener,
-        LoaderManager.LoaderCallbacks<TrackBusMvp.Presenter>, TrackBusMvp.View {
+public class TrackBusFragment extends Fragment
+        implements LoaderManager.LoaderCallbacks<TrackBusMvp.Presenter>, TrackBusMvp.View {
     private static final String TAG = TrackBusFragment.class.getSimpleName();
     private static final int REQUEST_FINE_LOCATION_PERMISSION = 0;
     private static final int TRACK_BUS_LOADER_ID = 0;
@@ -96,13 +94,16 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
         mEditBusNumber = (EditText) rootView.findViewById(R.id.editBusID);
 
         Button buttonEnterBus = (Button) rootView.findViewById(R.id.buttonEnterBus);
-        buttonEnterBus.setOnClickListener(this);
+        buttonEnterBus.setOnClickListener(view -> buttonEnterBusClick());
 
         Button buttonLeaveBus = (Button) rootView.findViewById(R.id.buttonLeaveBus);
-        buttonLeaveBus.setOnClickListener(this);
+        buttonLeaveBus.setOnClickListener(view -> {
+            if (mPresenter != null) mPresenter.stopLocationUpdate();
+        });
 
         mSwitchDetectAutomatically = (Switch) rootView.findViewById(R.id.switchDetectAutomatically);
-        mSwitchDetectAutomatically.setOnCheckedChangeListener(this);
+        mSwitchDetectAutomatically.setOnCheckedChangeListener(
+                (button, isChecked) -> switchDetectAutomaticallyChange());
 
         Log.v(TAG, "< onCreateView([LayoutInflater, ViewGroup, Bundle])");
 
@@ -170,45 +171,6 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
                 + requestCode + ", "
                 + Arrays.toString(permissions) + ", "
                 + Arrays.toString(grantResults) + ")");
-    }
-
-    @Override
-    @UiThread
-    public void onClick(@NonNull View v) {
-        Log.v(TAG, "> onClick(" + getResources().getResourceEntryName(v.getId()) + ")");
-
-        if (mPresenter != null) {
-            switch (v.getId()) {
-                case R.id.buttonEnterBus:
-                    buttonEnterBusClick();
-                    break;
-                case R.id.buttonLeaveBus:
-                    mPresenter.stopLocationUpdate();
-                    break;
-                default:
-                    Log.wtf(TAG, "I don't know how to handle this view's click: " + v.getId());
-            }
-        } else {
-            Log.w(TAG, "presenter is null; cannot handle button click");
-        }
-
-        Log.v(TAG, "< onClick(" + getResources().getResourceEntryName(v.getId()) + ")");
-    }
-
-    @Override
-    @UiThread
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        Log.v(TAG, "> onCheckedChanged(buttonView=" + buttonView + ", isChecked=" + isChecked + ")");
-
-        switch (buttonView.getId()) {
-            case R.id.switchDetectAutomatically:
-                switchDetectAutomaticallyChange();
-                break;
-            default:
-                Log.wtf(TAG, "change detected by an unexpected button: " + buttonView);
-        }
-
-        Log.v(TAG, "< onCheckedChanged(buttonView=" + buttonView + ", isChecked=" + isChecked + ")");
     }
 
     @Override

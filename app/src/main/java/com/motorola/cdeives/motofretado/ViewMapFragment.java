@@ -19,13 +19,11 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class ViewMapFragment extends Fragment
-        implements View.OnClickListener, OnMapReadyCallback,
-        LoaderManager.LoaderCallbacks<ViewMapMvp.Presenter>, ViewMapMvp.View {
+        implements LoaderManager.LoaderCallbacks<ViewMapMvp.Presenter>, ViewMapMvp.View {
     private static final String TAG = ViewMapFragment.class.getSimpleName();
     private static final int MAP_ZOOM_LEVEL = 15; // streets level
     private static final int VIEW_MAP_LOADER_ID = 0;
@@ -60,11 +58,15 @@ public class ViewMapFragment extends Fragment
         mEditBusID = (EditText) rootView.findViewById(R.id.editBusID);
 
         mButtonViewMap = (Button) rootView.findViewById(R.id.buttonViewMap);
-        mButtonViewMap.setOnClickListener(this);
+        mButtonViewMap.setOnClickListener(view -> buttonViewMapClick());
 
         mMapView = (MapView) rootView.findViewById(R.id.map_view);
         mMapView.onCreate(savedInstanceState);
-        mMapView.getMapAsync(this);
+        mMapView.getMapAsync(map -> {
+            mMap = map;
+            mEditBusID.setEnabled(true);
+            mButtonViewMap.setEnabled(true);
+        });
 
         Log.v(TAG, "< onCreateView([LayoutInflater, ViewGroup, Bundle])");
 
@@ -159,34 +161,6 @@ public class ViewMapFragment extends Fragment
         }
 
         Log.v(TAG, "< onDestroy()");
-    }
-
-    @Override
-    @UiThread
-    public void onClick(View v) {
-        Log.v(TAG, "> onClick(v=" + getResources().getResourceEntryName(v.getId()) + ")");
-
-        switch (v.getId()) {
-            case R.id.buttonViewMap:
-                buttonViewMapClick();
-                break;
-            default:
-                Log.wtf(TAG, "I don't know how to handle this view's click: " + v.getId());
-        }
-
-        Log.v(TAG, "< onClick(v=" + getResources().getResourceEntryName(v.getId()) + ")");
-    }
-
-    @Override
-    @UiThread
-    public void onMapReady(GoogleMap googleMap) {
-        Log.v(TAG, "> onMapReady([GoogleMap])");
-
-        mMap = googleMap;
-        mEditBusID.setEnabled(true);
-        mButtonViewMap.setEnabled(true);
-
-        Log.v(TAG, "< onMapReady([GoogleMap])");
     }
 
     @Override
