@@ -44,7 +44,8 @@ import java.net.HttpURLConnection;
 import java.util.Calendar;
 
 public class UpdateLocationService extends Service
-        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
     public static final String EXTRA_MESSENGER = "messenger";
     public static final String EXTRA_BUS_ID = "bus_id";
 
@@ -272,7 +273,7 @@ public class UpdateLocationService extends Service
                         break;
                     default:
                         Error httpError = Util.getGsonInstance().fromJson(new String(error.networkResponse.data), Error.class);
-                        Log.e(TAG, "unexpected error PATCHing bus: " + httpError.details + "(" + httpError.status + ")", error);
+                        Log.e(TAG, "unexpected error PATCHing bus: " + httpError.details + " (" + httpError.status + ")", error);
 
                         Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_DISPLAY_TOAST, R.string.update_network_error, 0);
                         try {
@@ -312,7 +313,7 @@ public class UpdateLocationService extends Service
                     break;
                 default:
                     Error httpError = Util.getGsonInstance().fromJson(new String(error.networkResponse.data), Error.class);
-                    Log.e(TAG, "unexpected error POSTing bus: " + httpError.details + "(" + httpError.status + ")", error);
+                    Log.e(TAG, "unexpected error POSTing bus: " + httpError.details + " (" + httpError.status + ")", error);
 
                     Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_DISPLAY_TOAST, R.string.update_network_error, 0);
                     try {

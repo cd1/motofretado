@@ -146,7 +146,7 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
     @Override
     @UiThread
     public void onClick(@NonNull View v) {
-        Log.v(TAG, "> onClick(" + getResources().getResourceEntryName(v.getId())+ ")");
+        Log.v(TAG, "> onClick(" + getResources().getResourceEntryName(v.getId()) + ")");
 
         if (mPresenter != null) {
             switch (v.getId()) {
@@ -163,7 +163,7 @@ public class TrackBusFragment extends Fragment implements View.OnClickListener,
             Log.w(TAG, "presenter is null; cannot handle button click");
         }
 
-        Log.v(TAG, "< onClick(" + getResources().getResourceEntryName(v.getId())+ ")");
+        Log.v(TAG, "< onClick(" + getResources().getResourceEntryName(v.getId()) + ")");
     }
 
     @Override

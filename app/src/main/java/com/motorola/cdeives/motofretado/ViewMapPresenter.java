@@ -17,7 +17,7 @@ class ViewMapPresenter implements ViewMapMvp.Presenter {
 
     private Handler mHandler;
     private String mBusId;
-    private ViewMapMvp.Model mModel;
+    private final ViewMapMvp.Model mModel;
     private ViewMapMvp.View mView;
 
     ViewMapPresenter(Context context) {

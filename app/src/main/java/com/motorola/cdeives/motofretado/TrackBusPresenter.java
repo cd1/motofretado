@@ -55,41 +55,6 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
         } else {
             Log.w(TAG, "view is null; cannot read bus ID needed to start the location service");
         }
-
-                /* LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(locationRequest);
-        PendingResult<LocationSettingsResult> pendingResult =
-                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
-
-        pendingResult.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-            @Override
-            public void onResult(@NonNull LocationSettingsResult result) {
-                Status status = result.getStatus();
-                switch (status.getStatusCode()) {
-                    case GeofenceStatusCodes.SUCCESS:
-                        Log.d(TAG, "we're allowed to start location updates!");
-                        break;
-                    case GeofenceStatusCodes.RESOLUTION_REQUIRED:
-                        try {
-                            status.startResolutionForResult((Activity) mContext, 0);
-                        } catch (IntentSender.SendIntentException ex) {
-                            Log.e(TAG, "error trying to start resolution", ex);
-                        }
-                        break;
-                    default:
-                        mView.displayToast("Can't we use your GPS??? :(");
-                        Log.w(TAG, status.toString());
-                }
-
-                if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED) {
-                    mView.disableBusID();
-                    LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, TrackBusPresenterImpl.this);
-                } else {
-                    mView.displayToast("Location permission wasn't granted");
-                }
-            }
-        }); */
     }
 
     @Override
