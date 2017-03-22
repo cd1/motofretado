@@ -231,6 +231,7 @@ public class ViewMapFragment extends Fragment
     @UiThread
     public void setMapMarker(String title, double latitude, double longitude) {
         LatLng latLng = new LatLng(latitude, longitude);
+        mMap.clear();
         mMap.addMarker(new MarkerOptions()
                 .position(latLng)
                 .title(title));
