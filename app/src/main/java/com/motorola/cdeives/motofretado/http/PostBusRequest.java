@@ -20,6 +20,10 @@ public class PostBusRequest extends JsonObjectRequest {
     public <L extends Response.Listener<JSONObject> & Response.ErrorListener> PostBusRequest(@NonNull Bus bus, @NonNull L listener) {
         super(Method.POST, Util.SERVER_URL + "/bus", null, listener, listener);
         Log.d(TAG, "creating request: POST /bus/");
+
+        bus = bus.clone();
+        bus.updatedAt = null; // we can't use the field "updatedAt" in a POST request
+
         mBus = bus;
     }
 
