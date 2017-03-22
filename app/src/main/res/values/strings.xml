@@ -14,10 +14,10 @@
 
     <string name="empty_bus_id_message">You need to enter the bus number</string>
     <string name="update_network_error">Failed to update the bus location</string>
-    <string name="gms_connection_failed">Failed to obtain the device location. Make sure you have the latest version of Google Play Services installed.</string>
+    <string name="gms_connection_failed">Failed to connect to Google Play Services. Make sure you have the latest version installed.</string>
 
-    <string name="track_bus_title">Track bus</string>
-    <string name="view_map_title">View map</string>
+    <string name="track_bus_title">Track</string>
+    <string name="view_map_title">View</string>
 
     <string name="view_bus_on_map_button">View bus on map</string>
     <string name="action_feedback">Send feedback</string>
