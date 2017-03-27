@@ -58,8 +58,13 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         mBottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
         mBottomNavigationView.setOnNavigationItemSelectedListener(this);
-        ((BottomNavigationMenuView) mBottomNavigationView.getChildAt(0))
-                .getChildAt(DEFAULT_NAVIGATION_INDEX).performClick();
+
+        // only "click" the default tab when creating the activity for the first time
+        // (i.e. not when changing configuration)
+        if (savedInstanceState == null) {
+            ((BottomNavigationMenuView) mBottomNavigationView.getChildAt(0))
+                    .getChildAt(DEFAULT_NAVIGATION_INDEX).performClick();
+        }
 
         Log.v(TAG, "< onCreate(savedInstanceState=" + savedInstanceState + ")");
     }

@@ -2,6 +2,7 @@ package com.motorola.cdeives.motofretado;
 
 import android.os.Bundle;
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
@@ -30,13 +31,13 @@ public class ViewMapFragment extends Fragment
 
     private EditText mEditBusID;
     private Button mButtonViewMap;
-    private GoogleMap mMap;
     private MapView mMapView;
-    private ViewMapMvp.Presenter mPresenter;
+    private @Nullable GoogleMap mMap;
+    private @Nullable ViewMapMvp.Presenter mPresenter;
 
     @UiThread
-    private void buttonViewMapClick() {
-        String busID = mEditBusID.getText().toString();
+    public void buttonViewMapClick() {
+        String busID = getBusId();
 
         if (TextUtils.isEmpty(busID)) {
             Log.d(TAG, "empty bus ID; cannot trigger location updates");
@@ -44,7 +45,11 @@ public class ViewMapFragment extends Fragment
             return;
         }
 
-        mPresenter.startViewingBusLocation(busID);
+        if (mPresenter != null) {
+            mPresenter.startViewingBusLocation();
+        } else {
+            Log.w(TAG, "presenter is null; cannot start view bus location service");
+        }
     }
 
     @Override
@@ -62,11 +67,7 @@ public class ViewMapFragment extends Fragment
 
         mMapView = (MapView) rootView.findViewById(R.id.map_view);
         mMapView.onCreate(savedInstanceState);
-        mMapView.getMapAsync(map -> {
-            mMap = map;
-            mEditBusID.setEnabled(true);
-            mButtonViewMap.setEnabled(true);
-        });
+        mMapView.getMapAsync(map -> mMap = map);
 
         Log.v(TAG, "< onCreateView([LayoutInflater, ViewGroup, Bundle])");
 
@@ -116,7 +117,9 @@ public class ViewMapFragment extends Fragment
         Log.v(TAG, "> onStop()");
 
         super.onStop();
-        mPresenter.onStop();
+        if (mPresenter != null && !getActivity().isChangingConfigurations()) {
+            mPresenter.stopViewingBusLocation();
+        }
 
         Log.v(TAG, "< onStop()");
     }
@@ -153,9 +156,6 @@ public class ViewMapFragment extends Fragment
         Log.v(TAG, "> onDestroy()");
 
         super.onDestroy();
-        if (mPresenter != null) {
-            mPresenter.onDetach();
-        }
         if (mMapView != null) {
             mMapView.onDestroy();
         }
@@ -164,6 +164,7 @@ public class ViewMapFragment extends Fragment
     }
 
     @Override
+    @MainThread
     public Loader<ViewMapMvp.Presenter> onCreateLoader(int id, Bundle args) {
         Log.v(TAG, "> onCreateLoader(id=" + id + ", args=" + args + ")");
 
@@ -183,6 +184,7 @@ public class ViewMapFragment extends Fragment
     }
 
     @Override
+    @MainThread
     public void onLoadFinished(Loader<ViewMapMvp.Presenter> loader, ViewMapMvp.Presenter data) {
         Log.v(TAG, "> onLoadFinished([Loader<Presenter>], [Presenter])");
 
@@ -193,35 +195,51 @@ public class ViewMapFragment extends Fragment
     }
 
     @Override
+    @MainThread
     public void onLoaderReset(Loader<ViewMapMvp.Presenter> loader) {
         Log.v(TAG, "> onLoaderReset([Loader<Presenter>]");
 
-        mPresenter = null;
+        if (mPresenter != null) {
+            mPresenter.onDetach();
+            mPresenter = null;
+        }
 
         Log.v(TAG, "< onLoaderReset([Loader<Presenter>]");
     }
 
     @Override
     @UiThread
+    public @NonNull String getBusId() {
+        return mEditBusID.getText().toString();
+    }
+
+    @Override
+    @UiThread
     public void setMapMarker(String title, double latitude, double longitude) {
-        LatLng latLng = new LatLng(latitude, longitude);
-        mMap.clear();
-        mMap.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title(title));
-        mMap.moveCamera(CameraUpdateFactory
-                .newLatLngZoom(latLng, MAP_ZOOM_LEVEL));
+        if (mMap != null) {
+            LatLng latLng = new LatLng(latitude, longitude);
+            mMap.clear();
+            mMap.addMarker(new MarkerOptions()
+                    .position(latLng)
+                    .title(title));
+            mMap.moveCamera(CameraUpdateFactory
+                    .newLatLngZoom(latLng, MAP_ZOOM_LEVEL));
+        } else {
+            Log.w(TAG, "Google Map is null; cannot draw marker");
+        }
     }
 
     @Override
     @UiThread
-    public void enableBusId() {
+    public void enableBusIdInput() {
         mEditBusID.setEnabled(true);
+        mButtonViewMap.setEnabled(true);
     }
 
     @Override
     @UiThread
-    public void disableBusId() {
+    public void disableBusIdInput() {
         mEditBusID.setEnabled(false);
+        mButtonViewMap.setEnabled(false);
     }
 }

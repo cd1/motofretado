@@ -1,6 +1,5 @@
 package com.motorola.cdeives.motofretado;
 
-import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 
 import com.motorola.cdeives.motofretado.http.Bus;
@@ -18,11 +17,13 @@ interface ViewMapMvp {
 
     interface View {
         @UiThread
+        String getBusId();
+        @UiThread
         void setMapMarker(String title, double latitude, double longitude);
         @UiThread
-        void enableBusId();
+        void enableBusIdInput();
         @UiThread
-        void disableBusId();
+        void disableBusIdInput();
     }
 
     interface Presenter {
@@ -31,8 +32,8 @@ interface ViewMapMvp {
         @UiThread
         void onDetach();
         @UiThread
-        void onStop();
+        void startViewingBusLocation();
         @UiThread
-        void startViewingBusLocation(@NonNull String busID);
+        void stopViewingBusLocation();
     }
 }
