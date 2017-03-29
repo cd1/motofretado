@@ -1,5 +1,6 @@
 package com.motorola.cdeives.motofretado;
 
+import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 
 import com.motorola.cdeives.motofretado.http.Bus;
@@ -24,6 +25,8 @@ interface ViewMapMvp {
         void enableBusIdInput();
         @UiThread
         void disableBusIdInput();
+        @UiThread
+        void displayMessage(@StringRes int messageId);
     }
 
     interface Presenter {

@@ -18,4 +18,5 @@
     <string name="view_bus_on_map_button">Visualizar o fretado no mapa</string>
     <string name="view_map_title">Visualizar</string>
     <string name="detect_automatically_text">Detectar movimento automaticamente:</string>
+    <string name="view_bus_not_recent_message">A localização do fretado não foi atualizada recentemente.</string>
 </resources>

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -41,7 +42,7 @@ public class ViewMapFragment extends Fragment
 
         if (TextUtils.isEmpty(busID)) {
             Log.d(TAG, "empty bus ID; cannot trigger location updates");
-            Toast.makeText(getActivity(), R.string.empty_bus_id_message, Toast.LENGTH_SHORT).show();
+            displayMessage(R.string.empty_bus_id_message);
             return;
         }
 
@@ -241,5 +242,11 @@ public class ViewMapFragment extends Fragment
     public void disableBusIdInput() {
         mEditBusID.setEnabled(false);
         mButtonViewMap.setEnabled(false);
+    }
+
+    @Override
+    @UiThread
+    public void displayMessage(@StringRes int messageID) {
+        Toast.makeText(getContext(), messageID, Toast.LENGTH_SHORT).show();
     }
 }

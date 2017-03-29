@@ -10,10 +10,13 @@ import android.util.Log;
 
 import com.motorola.cdeives.motofretado.http.Bus;
 
+import java.util.Calendar;
+
 class ViewMapPresenter implements ViewMapMvp.Presenter {
     private static final String TAG = ViewMapPresenter.class.getSimpleName();
     private static final int MSG_VIEW_BUS_LOCATION = 0;
     private static final int REPEAT_DELAY = 2500; // ms
+    private static final int RECENT_LOCATION_THRESHOLD = 10; // min
 
     private Handler mHandler;
     private final @NonNull ViewMapMvp.Model mModel;
@@ -96,7 +99,16 @@ class ViewMapPresenter implements ViewMapMvp.Presenter {
                         mModel.readBus(busId, new ViewMapMvp.Model.Listener<Bus>() {
                             @Override
                             public void onSuccess(Bus data) {
-                                mView.setMapMarker(busId, data.latitude, data.longitude);
+                                Calendar oldestAcceptableTime = Calendar.getInstance();
+                                oldestAcceptableTime.add(Calendar.MINUTE,
+                                        -RECENT_LOCATION_THRESHOLD);
+
+                                if (data.updatedAt.after(oldestAcceptableTime.getTime())) {
+                                    mView.setMapMarker(busId, data.latitude, data.longitude);
+                                } else {
+                                    mView.displayMessage(R.string.view_bus_not_recent_message);
+                                    stopViewingBusLocation();
+                                }
                             }
 
                             @Override
