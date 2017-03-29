@@ -5,11 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
-import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -17,37 +14,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.ncapdevi.fragnav.FragNavController;
+
+import java.util.Arrays;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener{
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final int DEFAULT_NAVIGATION_INDEX = 0;
-    private static final String TRACK_BUS_FRAGMENT_TAG = "TrackBus";
-    private static final String VIEW_MAP_FRAGMENT_TAG = "ViewMap";
-    private static final String BOTTOM_NAVIGATION_INDEX_KEY = "bottomNavigationIndexKey";
 
-    private BottomNavigationView mBottomNavigationView;
-
-    @UiThread
-    private void setCurrentFragment(String tag) {
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
-        if (fragment == null) {
-            switch (tag) {
-                case TRACK_BUS_FRAGMENT_TAG:
-                    fragment = new TrackBusFragment();
-                    break;
-                case VIEW_MAP_FRAGMENT_TAG:
-                    fragment = new ViewMapFragment();
-                    break;
-                default:
-                    Log.wtf(TAG, "unexpected Fragment tag; using default Fragment");
-                    fragment = new TrackBusFragment();
-            }
-        }
-
-        FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
-        tx.replace(R.id.fragment_view_group, fragment, tag);
-        tx.commit();
-    }
+    private FragNavController mFragNavController;
 
     @Override
     @MainThread
@@ -56,15 +32,13 @@ public class MainActivity extends AppCompatActivity
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mBottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
-        mBottomNavigationView.setOnNavigationItemSelectedListener(this);
+        BottomNavigationView bottomNavigationView =
+                (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener(this);
 
-        // only "click" the default tab when creating the activity for the first time
-        // (i.e. not when changing configuration)
-        if (savedInstanceState == null) {
-            ((BottomNavigationMenuView) mBottomNavigationView.getChildAt(0))
-                    .getChildAt(DEFAULT_NAVIGATION_INDEX).performClick();
-        }
+        List<Fragment> rootFragments = Arrays.asList(new TrackBusFragment(), new ViewMapFragment());
+        mFragNavController = new FragNavController(savedInstanceState, getSupportFragmentManager(),
+                R.id.fragment_view_group, rootFragments, FragNavController.TAB1);
 
         Log.v(TAG, "< onCreate(savedInstanceState=" + savedInstanceState + ")");
     }
@@ -113,10 +87,10 @@ public class MainActivity extends AppCompatActivity
 
         switch (item.getItemId()) {
             case R.id.bottom_bar_track_bus:
-                setCurrentFragment(TRACK_BUS_FRAGMENT_TAG);
+                mFragNavController.switchTab(FragNavController.TAB1);
                 break;
             case R.id.bottom_bar_view_map:
-                setCurrentFragment(VIEW_MAP_FRAGMENT_TAG);
+                mFragNavController.switchTab(FragNavController.TAB2);
                 break;
             default:
                 Log.wtf(TAG, "unexpected menu item click: " + item);
@@ -132,31 +106,8 @@ public class MainActivity extends AppCompatActivity
         Log.v(TAG, "> onSaveInstanceState(outState=" + outState+ ")");
 
         super.onSaveInstanceState(outState);
-
-        Menu bottomMenu = mBottomNavigationView.getMenu();
-        for (int i = 0; i < bottomMenu.size(); i++) {
-            if (bottomMenu.getItem(i).isChecked()) {
-                outState.putInt(BOTTOM_NAVIGATION_INDEX_KEY, i);
-                break;
-            }
-        }
+        mFragNavController.onSaveInstanceState(outState);
 
         Log.v(TAG, "< onSaveInstanceState(outState=" + outState+ ")");
-    }
-
-    @Override
-    @MainThread
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.v(TAG, "> onRestoreInstanceState(savedInstanceState=" + savedInstanceState + ")");
-
-        super.onRestoreInstanceState(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            int bottomNavigationIndex = savedInstanceState.getInt(BOTTOM_NAVIGATION_INDEX_KEY);
-            ((BottomNavigationMenuView) mBottomNavigationView.getChildAt(0))
-                    .getChildAt(bottomNavigationIndex).performClick();
-        }
-
-        Log.v(TAG, "< onRestoreInstanceState(savedInstanceState=" + savedInstanceState + ")");
     }
 }
