@@ -15,7 +15,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -23,6 +24,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.motorola.cdeives.motofretado.http.Bus;
+
+import java.util.List;
 
 public class ViewMapFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<ViewMapMvp.Presenter>, ViewMapMvp.View {
@@ -30,14 +34,15 @@ public class ViewMapFragment extends Fragment
     private static final int MAP_ZOOM_LEVEL = 15; // streets level
     private static final int VIEW_MAP_LOADER_ID = 0;
 
-    private EditText mEditBusID;
+    private Spinner mSpinnerBusId;
     private Button mButtonViewMap;
     private MapView mMapView;
     private @Nullable GoogleMap mMap;
     private @Nullable ViewMapMvp.Presenter mPresenter;
+    private @Nullable SpinnerAdapter mSpinnerAdapter;
 
     @UiThread
-    public void buttonViewMapClick() {
+    private void buttonViewMapClick() {
         String busID = getBusId();
 
         if (TextUtils.isEmpty(busID)) {
@@ -61,7 +66,7 @@ public class ViewMapFragment extends Fragment
 
         View rootView = inflater.inflate(R.layout.fragment_view_map, container, false);
 
-        mEditBusID = (EditText) rootView.findViewById(R.id.editBusID);
+        mSpinnerBusId = (Spinner) rootView.findViewById(R.id.spinnerBusID);
 
         mButtonViewMap = (Button) rootView.findViewById(R.id.buttonViewMap);
         mButtonViewMap.setOnClickListener(view -> buttonViewMapClick());
@@ -70,9 +75,24 @@ public class ViewMapFragment extends Fragment
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(map -> mMap = map);
 
+        disableBusIdInput();
+
         Log.v(TAG, "< onCreateView([LayoutInflater, ViewGroup, Bundle])");
 
         return rootView;
+    }
+
+    @Override
+    @MainThread
+    public void onDestroyView() {
+        Log.v(TAG, "> onDestroyView()");
+        super.onDestroyView();
+
+        if (mPresenter != null) {
+            mPresenter.onDetach();
+        }
+
+        Log.v(TAG, "< onDestroyView()");
     }
 
     @Override
@@ -210,8 +230,10 @@ public class ViewMapFragment extends Fragment
 
     @Override
     @UiThread
-    public @NonNull String getBusId() {
-        return mEditBusID.getText().toString();
+    public @Nullable String getBusId() {
+        return (mSpinnerAdapter != null && !mSpinnerAdapter.isEmpty())
+                ? mSpinnerAdapter.getItem(mSpinnerBusId.getSelectedItemPosition()).toString()
+                : null;
     }
 
     @Override
@@ -233,14 +255,14 @@ public class ViewMapFragment extends Fragment
     @Override
     @UiThread
     public void enableBusIdInput() {
-        mEditBusID.setEnabled(true);
+        mSpinnerBusId.setEnabled(true);
         mButtonViewMap.setEnabled(true);
     }
 
     @Override
     @UiThread
     public void disableBusIdInput() {
-        mEditBusID.setEnabled(false);
+        mSpinnerBusId.setEnabled(false);
         mButtonViewMap.setEnabled(false);
     }
 
@@ -248,5 +270,20 @@ public class ViewMapFragment extends Fragment
     @UiThread
     public void displayMessage(@StringRes int messageID) {
         Toast.makeText(getContext(), messageID, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    @UiThread
+    public void setAvailableBuses(@NonNull List<Bus> buses, String defaultBusId) {
+        mSpinnerAdapter = new BusSpinnerAdapter(getContext(), buses);
+        mSpinnerBusId.setAdapter(mSpinnerAdapter);
+
+        if (!TextUtils.isEmpty(defaultBusId)) {
+            for (int i = 0; i < buses.size(); i++) {
+                if (buses.get(i).id.equals(defaultBusId)) {
+                    mSpinnerBusId.setSelection(i);
+                }
+            }
+        }
     }
 }

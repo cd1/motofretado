@@ -4,6 +4,9 @@
     <string name="enter_bus_button">Enter bus</string>
     <string name="leave_bus_button">Leave bus</string>
     <string name="bus_number_text">Bus number:</string>
+    <string name="add_bus_button_description">Tap here to add a bus if your bus isn\'t listed</string>
+    <string name="add_bus_dialog_title">Add bus</string>
+    <string name="bus_number_hint">Bus number</string>
 
     <string name="fine_location_permission_not_granted">Location permission not granted</string>
     <string name="fine_location_permission_rationale">You need to grant permission to Location Services in order to track the bus route.</string>
@@ -15,6 +18,8 @@
     <string name="empty_bus_id_message">You need to enter the bus number</string>
     <string name="update_network_error">Failed to update the bus location</string>
     <string name="gms_connection_failed">Failed to connect to Google Play Services. Make sure you have the latest version installed.</string>
+    <string name="read_buses_failed">Failed to fetch the available bus numbers. Please try again later.</string>
+    <string name="create_bus_failed">Failed to create the bus. Please try again later.</string>
 
     <string name="track_bus_title">Track</string>
     <string name="view_map_title">View</string>

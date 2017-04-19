@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="default_bus_id">
+        <item>Loading bus numbers…</item>
+    </string-array>
+</resources>

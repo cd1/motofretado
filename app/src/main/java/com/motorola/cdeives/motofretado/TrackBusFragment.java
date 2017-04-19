@@ -3,6 +3,9 @@ package com.motorola.cdeives.motofretado;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -11,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
@@ -21,21 +25,29 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.motorola.cdeives.motofretado.http.Bus;
+
 import java.util.Arrays;
+import java.util.List;
 
 public class TrackBusFragment extends Fragment
-        implements LoaderManager.LoaderCallbacks<TrackBusMvp.Presenter>, TrackBusMvp.View {
+        implements LoaderManager.LoaderCallbacks<TrackBusMvp.Presenter>, TrackBusMvp.View,
+        AddBusDialogFragment.OnClickListener {
     private static final String TAG = TrackBusFragment.class.getSimpleName();
     private static final int REQUEST_FINE_LOCATION_PERMISSION = 0;
     private static final int TRACK_BUS_LOADER_ID = 0;
 
     private @Nullable TrackBusMvp.Presenter mPresenter;
-    private EditText mEditBusNumber;
+    private Spinner mSpinnerBusId;
     private Switch mSwitchDetectAutomatically;
+    private @Nullable SpinnerAdapter mSpinnerAdapter;
+    private ImageButton mButtonAddBus;
 
     @UiThread
     private void buttonEnterBusClick() {
@@ -62,8 +74,13 @@ public class TrackBusFragment extends Fragment
     }
 
     @UiThread
-    private void switchDetectAutomaticallyChange() {
-        boolean isChecked = mSwitchDetectAutomatically.isChecked();
+    private void switchDetectAutomaticallyChange(boolean isChecked) {
+        // ignore event if presenter isn't ready
+        if (mPresenter == null) {
+            Log.d(TAG, "presenter is null; cannot perform any action due to the switch change");
+            return;
+        }
+
         if (isChecked && TextUtils.isEmpty(getBusId())) {
             Log.d(TAG, "empty bus ID; cannot trigger activity detection");
             displayMessage(getString(R.string.empty_bus_id_message));
@@ -71,15 +88,10 @@ public class TrackBusFragment extends Fragment
             return;
         }
 
-        if (mPresenter != null) {
-            if (isChecked) {
-                mPresenter.startActivityDetection();
-            } else {
-                mPresenter.stopActivityDetection();
-            }
+        if (isChecked) {
+            mPresenter.startActivityDetection();
         } else {
-            Log.w(TAG, "presenter is null; cannot " + (isChecked ? "start" : "stop")
-                    + " activity detection");
+            mPresenter.stopActivityDetection();
         }
     }
 
@@ -91,7 +103,14 @@ public class TrackBusFragment extends Fragment
 
         View rootView = inflater.inflate(R.layout.fragment_track_bus, container, false);
 
-        mEditBusNumber = (EditText) rootView.findViewById(R.id.editBusID);
+        mSpinnerBusId = (Spinner) rootView.findViewById(R.id.spinnerBusID);
+
+        mButtonAddBus = (ImageButton) rootView.findViewById(R.id.buttonAddBus);
+        mButtonAddBus.setOnClickListener(view -> {
+            DialogFragment fragment = new AddBusDialogFragment();
+            fragment.setTargetFragment(TrackBusFragment.this, 0);
+            fragment.show(getFragmentManager(), AddBusDialogFragment.class.getName());
+        });
 
         Button buttonEnterBus = (Button) rootView.findViewById(R.id.buttonEnterBus);
         buttonEnterBus.setOnClickListener(view -> buttonEnterBusClick());
@@ -103,11 +122,26 @@ public class TrackBusFragment extends Fragment
 
         mSwitchDetectAutomatically = (Switch) rootView.findViewById(R.id.switchDetectAutomatically);
         mSwitchDetectAutomatically.setOnCheckedChangeListener(
-                (button, isChecked) -> switchDetectAutomaticallyChange());
+                (button, isChecked) -> switchDetectAutomaticallyChange(isChecked));
+
+        disableBusId();
 
         Log.v(TAG, "< onCreateView([LayoutInflater, ViewGroup, Bundle])");
 
         return rootView;
+    }
+
+    @Override
+    @MainThread
+    public void onDestroyView() {
+        Log.v(TAG, "> onDestroyView()");
+        super.onDestroyView();
+
+        if (mPresenter != null) {
+            mPresenter.onDetach();
+        }
+
+        Log.v(TAG, "< onDestroyView()");
     }
 
     @Override
@@ -200,8 +234,8 @@ public class TrackBusFragment extends Fragment
 
         if (mPresenter != null) {
             mPresenter.onDetach();
+            mPresenter = null;
         }
-        mPresenter = null;
 
         Log.v(TAG, "< onLoaderReset([Loader<Presenter>])");
     }
@@ -219,8 +253,10 @@ public class TrackBusFragment extends Fragment
 
     @Override
     @UiThread
-    public @NonNull String getBusId() {
-        return mEditBusNumber.getText().toString();
+    public @Nullable String getBusId() {
+        return (mSpinnerAdapter != null && !mSpinnerAdapter.isEmpty())
+                ? mSpinnerAdapter.getItem(mSpinnerBusId.getSelectedItemPosition()).toString()
+                : null;
     }
 
     @Override
@@ -234,18 +270,59 @@ public class TrackBusFragment extends Fragment
     @Override
     @UiThread
     public void enableBusId() {
-        mEditBusNumber.setEnabled(true);
+        mSpinnerBusId.setEnabled(true);
+
+        mButtonAddBus.setEnabled(true);
+        mButtonAddBus.setImageDrawable(getContext().getDrawable(R.drawable.ic_add));
     }
 
     @Override
     @UiThread
     public void disableBusId() {
-        mEditBusNumber.setEnabled(false);
+        mSpinnerBusId.setEnabled(false);
+
+        mButtonAddBus.setEnabled(false);
+        Drawable drawable = getContext().getDrawable(R.drawable.ic_add);
+        if (drawable != null) {
+            drawable = drawable.mutate();
+            drawable.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+            mButtonAddBus.setImageDrawable(drawable);
+        } else {
+            Log.wtf(TAG, "Drawable \"Add\" is null; cannot convert it to grayscale");
+        }
     }
 
     @Override
     @UiThread
     public void uncheckSwitchDetectAutomatically() {
         mSwitchDetectAutomatically.setChecked(false);
+    }
+
+    @Override
+    @UiThread
+    public void setAvailableBuses(@NonNull List<Bus> buses, @Nullable String selectedBusId) {
+        mSpinnerAdapter = new BusSpinnerAdapter(getContext(), buses);
+        mSpinnerBusId.setAdapter(mSpinnerAdapter);
+
+        if (!TextUtils.isEmpty(selectedBusId)) {
+            for (int i = 0; i < buses.size(); i++) {
+                if (buses.get(i).id.equals(selectedBusId)) {
+                    mSpinnerBusId.setSelection(i);
+                }
+            }
+        }
+    }
+
+    @Override
+    @UiThread
+    public void onPositiveButtonClick(String text) {
+        if (mPresenter != null) {
+            Bus bus = new Bus();
+            bus.id = text;
+
+            mPresenter.createBus(bus);
+        } else {
+            Log.w(TAG, "presenter is null; cannot add new bus");
+        }
     }
 }

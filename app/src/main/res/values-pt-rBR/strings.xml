@@ -4,6 +4,7 @@
     <string name="action_feedback">Enviar feedback</string>
     <string name="action_settings">Configurações</string>
     <string name="bus_number_text">Número do fretado:</string>
+    <string name="bus_number_hint">Número do fretado</string>
     <string name="empty_bus_id_message">Você precisa digitar o número do fretado</string>
     <string name="enter_bus_button">Entrar no fretado</string>
     <string name="fine_location_permission_not_granted">Permissão de localização não foi dada</string>
@@ -19,4 +20,8 @@
     <string name="view_map_title">Visualizar</string>
     <string name="detect_automatically_text">Detectar movimento automaticamente:</string>
     <string name="view_bus_not_recent_message">A localização do fretado não foi atualizada recentemente.</string>
+    <string name="read_buses_failed">Não foi possível obter os números dos fretados disponíveis. Tente mais tarde.</string>
+    <string name="add_bus_button_description">Toque aqui para adicionar um fretado caso o seu não esteja listado</string>
+    <string name="add_bus_dialog_title">Adicionar fretado</string>
+    <string name="create_bus_failed">Não foi possível adicionar o fretado. Tente mais tarde.</string>
 </resources>

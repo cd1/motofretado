@@ -11,16 +11,30 @@
             android:id="@+id/textBusID"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            android:labelFor="@+id/editBusID" />
+            android:labelFor="@+id/spinnerBusID" />
 
-        <EditText
+        <Spinner
+            android:id="@+id/spinnerBusID"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:id="@+id/editBusID"
-            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textBusID"
-            android:inputType="text" />
+            app:layout_constraintRight_toLeftOf="@+id/buttonAddBus"
+            style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+            android:entries="@array/default_bus_id" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/buttonAddBus"
+            app:srcCompat="@drawable/ic_add"
+            android:contentDescription="@string/add_bus_button_description"
+            android:background="?android:selectableItemBackground"
+            app:layout_constraintLeft_toRightOf="@+id/spinnerBusID"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintBottom_toBottomOf="@+id/spinnerBusID"
+            app:layout_constraintTop_toTopOf="@+id/spinnerBusID" />
 
         <Button
             android:layout_width="0dp"
@@ -29,7 +43,7 @@
             android:id="@+id/buttonEnterBus"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editBusID" />
+            app:layout_constraintTop_toBottomOf="@+id/spinnerBusID" />
 
         <Button
             android:layout_width="0dp"

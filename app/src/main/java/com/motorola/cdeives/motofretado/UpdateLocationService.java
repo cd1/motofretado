@@ -35,12 +35,10 @@ import com.google.android.gms.location.LocationServices;
 import com.motorola.cdeives.motofretado.http.Bus;
 import com.motorola.cdeives.motofretado.http.Error;
 import com.motorola.cdeives.motofretado.http.PatchBusRequest;
-import com.motorola.cdeives.motofretado.http.PostBusRequest;
 import com.motorola.cdeives.motofretado.http.Util;
 
 import org.json.JSONObject;
 
-import java.net.HttpURLConnection;
 import java.util.Calendar;
 
 public class UpdateLocationService extends Service
@@ -233,7 +231,7 @@ public class UpdateLocationService extends Service
         bus.longitude = location.getLongitude();
         bus.updatedAt = Calendar.getInstance().getTime();
 
-        JsonObjectRequest request = new PatchBusRequest(bus, new PatchBusResponseListener(bus));
+        JsonObjectRequest request = new PatchBusRequest(bus, new PatchBusResponseListener());
         Log.d(TAG, "PATCH /bus/" + mBusId);
         mRequestQueue.add(request);
 
@@ -243,12 +241,6 @@ public class UpdateLocationService extends Service
     private class PatchBusResponseListener
             implements Response.Listener<JSONObject>, Response.ErrorListener {
         private final String TAG = getClass().getSimpleName();
-
-        private final @NonNull Bus mBus;
-
-        PatchBusResponseListener(@NonNull Bus bus) {
-            mBus = bus;
-        }
 
         @Override
         public void onResponse(JSONObject response) {
@@ -264,62 +256,15 @@ public class UpdateLocationService extends Service
             Log.v(TAG, "> onErrorResponse(error=" + error + ")");
 
             if (error.networkResponse != null) {
-                switch (error.networkResponse.statusCode) {
-                    case HttpURLConnection.HTTP_NOT_FOUND: // 404 Not Found
-                        JsonObjectRequest request = new PostBusRequest(mBus, new PostBusResponseListener());
-                        Log.d(TAG, "POST /bus");
-                        mRequestQueue.add(request);
-                        break;
-                    default:
-                        Error httpError = Util.getGsonInstance().fromJson(new String(error.networkResponse.data), Error.class);
-                        Log.e(TAG, "unexpected error PATCHing bus: " + httpError.details + " (" + httpError.status + ")", error);
+                Error httpError = Util.getGsonInstance().fromJson(new String(error.networkResponse.data), Error.class);
+                Log.e(TAG, "unexpected error PATCHing bus: " + httpError.details + " (" + httpError.status + ")", error);
 
-                        Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_DISPLAY_TOAST, R.string.update_network_error, 0);
-                        try {
-                            mMessenger.send(msg);
-                        } catch (RemoteException ex) {
-                            Log.e(TAG, "error sending message to display toast", ex);
-                        }
+                Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_DISPLAY_TOAST, R.string.update_network_error, 0);
+                try {
+                    mMessenger.send(msg);
+                } catch (RemoteException ex) {
+                    Log.e(TAG, "error sending message to display toast", ex);
                 }
-            }
-
-            Log.v(TAG, "< onErrorResponse(error=" + error + ")");
-        }
-    }
-
-    private class PostBusResponseListener
-            implements Response.Listener<JSONObject>, Response.ErrorListener {
-        @Override
-        public void onResponse(JSONObject response) {
-            Log.v(TAG, "> onResponse([JSONObject]");
-
-            Log.d(TAG, "bus created successfully");
-
-            Log.v(TAG, "< onResponse([JSONObject]");
-        }
-
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Log.v(TAG, "> onErrorResponse(error=" + error + ")");
-
-            switch (error.networkResponse.statusCode) {
-                case HttpURLConnection.HTTP_CONFLICT: // 409 Conflict
-                    // when a PATCH request is sent to a non-existing bus, a POST request is sent
-                    // in order to create it. however, another PATCH request may be sent before the
-                    // POST doesn't finish, so another POST will be sent (for that second PATCH
-                    // request which failed). then that second POST request will return 409 Conflict.
-                    Log.w(TAG, "I received 409 Conflict when POSTing a new bus; it's probably safe to ignore it");
-                    break;
-                default:
-                    Error httpError = Util.getGsonInstance().fromJson(new String(error.networkResponse.data), Error.class);
-                    Log.e(TAG, "unexpected error POSTing bus: " + httpError.details + " (" + httpError.status + ")", error);
-
-                    Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_DISPLAY_TOAST, R.string.update_network_error, 0);
-                    try {
-                        mMessenger.send(msg);
-                    } catch (RemoteException ex) {
-                        Log.e(TAG, "error sending message to display toast", ex);
-                    }
             }
 
             Log.v(TAG, "< onErrorResponse(error=" + error + ")");

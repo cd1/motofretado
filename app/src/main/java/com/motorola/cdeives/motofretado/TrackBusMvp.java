@@ -4,11 +4,24 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 
+import com.motorola.cdeives.motofretado.http.Bus;
+import com.motorola.cdeives.motofretado.http.ModelListener;
+
+import java.util.List;
+
 interface TrackBusMvp {
+    interface Model {
+        @UiThread
+        void readAllBuses(@NonNull ModelListener<Bus[]> listener);
+        @UiThread
+        void createBus(@NonNull Bus bus, ModelListener<Bus> listener);
+        @UiThread
+        void cancelAllRequests();
+    }
+
     interface View {
         @UiThread
-        @NonNull
-        String getBusId();
+        @Nullable String getBusId();
         @UiThread
         void displayMessage(@Nullable String text);
         @UiThread
@@ -17,6 +30,8 @@ interface TrackBusMvp {
         void disableBusId();
         @UiThread
         void uncheckSwitchDetectAutomatically();
+        @UiThread
+        void setAvailableBuses(@NonNull List<Bus> buses, @Nullable String selectedBusId);
     }
 
     interface Presenter {
@@ -32,5 +47,7 @@ interface TrackBusMvp {
         void startActivityDetection();
         @UiThread
         void stopActivityDetection();
+        @UiThread
+        void createBus(@NonNull Bus bus);
     }
 }

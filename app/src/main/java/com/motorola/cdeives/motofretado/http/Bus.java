@@ -1,10 +1,12 @@
 package com.motorola.cdeives.motofretado.http;
 
+import android.support.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
 
-public class Bus implements Cloneable {
+public class Bus implements Cloneable, Comparable<Bus> {
     public String id;
     @SerializedName("lat")
     public double latitude;
@@ -34,5 +36,15 @@ public class Bus implements Cloneable {
         }
 
         return bus;
+    }
+
+    @Override
+    public String toString() {
+        return id;
+    }
+
+    @Override
+    public int compareTo(@NonNull Bus otherBus) {
+        return id.compareTo(otherBus.id);
     }
 }

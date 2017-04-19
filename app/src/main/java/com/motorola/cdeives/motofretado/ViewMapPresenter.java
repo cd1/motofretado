@@ -1,36 +1,53 @@
 package com.motorola.cdeives.motofretado;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.util.Log;
 
 import com.motorola.cdeives.motofretado.http.Bus;
+import com.motorola.cdeives.motofretado.http.ModelListener;
 
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 
 class ViewMapPresenter implements ViewMapMvp.Presenter {
     private static final String TAG = ViewMapPresenter.class.getSimpleName();
     private static final int MSG_VIEW_BUS_LOCATION = 0;
     private static final int REPEAT_DELAY = 2500; // ms
     private static final int RECENT_LOCATION_THRESHOLD = 10; // min
+    private static final String MOST_RECENT_VIEW_BUS_ID_PREF = "most_recent_view_bus_id";
 
+    private final @NonNull Context mContext;
     private Handler mHandler;
     private final @NonNull ViewMapMvp.Model mModel;
     private @Nullable ViewMapMvp.View mView;
     private boolean mIsViewingBusLocation;
+    private @Nullable String mSelectedBusId;
+    private @Nullable List<Bus> mAvailableBuses;
 
-    ViewMapPresenter(Context context) {
+    ViewMapPresenter(@NonNull Context context) {
+        mContext = context;
         mModel = new ViewMapModel(context.getApplicationContext());
+        mModel.readAllBuses(new ReadAllBusesListener());
     }
 
     @Override
     @UiThread
     public void onAttach(@NonNull ViewMapMvp.View view) {
         mView = view;
+
+        if (mAvailableBuses != null) {
+            mView.setAvailableBuses(mAvailableBuses, mSelectedBusId);
+            mView.enableBusIdInput();
+        }
+
         if (mIsViewingBusLocation) {
             mView.disableBusIdInput();
         }
@@ -39,6 +56,10 @@ class ViewMapPresenter implements ViewMapMvp.Presenter {
     @Override
     @UiThread
     public void onDetach() {
+        if (mView != null) {
+            mSelectedBusId = mView.getBusId();
+        }
+
         mView = null;
     }
 
@@ -85,6 +106,13 @@ class ViewMapPresenter implements ViewMapMvp.Presenter {
 
         mHandler.obtainMessage(MSG_VIEW_BUS_LOCATION).sendToTarget();
         mIsViewingBusLocation = true;
+
+        String busId = mView.getBusId();
+        Log.d(TAG, "writing preference: " + MOST_RECENT_VIEW_BUS_ID_PREF + " => " + busId);
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences.Editor prefsEditor = sharedPrefs.edit();
+        prefsEditor.putString(MOST_RECENT_VIEW_BUS_ID_PREF, busId);
+        prefsEditor.apply();
     }
 
     private class MyHandler extends Handler {
@@ -96,7 +124,7 @@ class ViewMapPresenter implements ViewMapMvp.Presenter {
                 String busId = mView.getBusId();
                 switch (msg.what) {
                     case MSG_VIEW_BUS_LOCATION:
-                        mModel.readBus(busId, new ViewMapMvp.Model.Listener<Bus>() {
+                        mModel.readBus(busId, new ModelListener<Bus>() {
                             @Override
                             public void onSuccess(Bus data) {
                                 Calendar oldestAcceptableTime = Calendar.getInstance();
@@ -128,6 +156,37 @@ class ViewMapPresenter implements ViewMapMvp.Presenter {
             }
 
             Log.v(TAG, "< onHandleMessage(msg=" + msg + ")");
+        }
+    }
+
+    @UiThread
+    private class ReadAllBusesListener implements ModelListener<Bus[]> {
+        @Override
+        public void onSuccess(Bus[] buses) {
+            List<Bus> busesList = Arrays.asList(buses);
+
+            if (mView != null) {
+                String mostRecentBusId = PreferenceManager.getDefaultSharedPreferences(mContext)
+                        .getString(MOST_RECENT_VIEW_BUS_ID_PREF, null);
+                Log.d(TAG, "reading preference: "
+                        + MOST_RECENT_VIEW_BUS_ID_PREF + " => " + mostRecentBusId);
+                mView.setAvailableBuses(busesList, mostRecentBusId);
+                mView.enableBusIdInput();
+            } else {
+                Log.w(TAG, "view is null; cannot update the available bus numbers");
+            }
+
+            mAvailableBuses = busesList;
+        }
+
+        @Override
+        public void onError(Exception ex) {
+            Log.e(TAG, "could not read buses", ex);
+            if (mView != null) {
+                mView.displayMessage(R.string.read_buses_failed);
+            } else {
+                Log.w(TAG, "view is null; cannot display error message");
+            }
         }
     }
 }
