@@ -280,7 +280,7 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
 
         @Override
         public void onError(Exception ex) {
-            Log.e(TAG, "could not read buses", ex);
+            Log.e(TAG, "could not create bus", ex);
             if (mView != null) {
                 mView.displayMessage(mContext.getString(R.string.create_bus_failed));
             } else {
