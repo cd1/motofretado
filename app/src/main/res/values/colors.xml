@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#F2BF00</color>
-    <color name="colorPrimaryDark">#E47400</color>
-    <color name="colorAccent">#EC3800</color>
+    <!-- Amber 200 -->
+    <color name="colorPrimaryLight">#FFE082</color>
+    <!-- Amber 500 -->
+    <color name="colorPrimary">#FFC107</color>
+    <!-- Amber 800 -->
+    <color name="colorPrimaryDark">#FF8F00</color>
+    <!-- Indigo A400 -->
+    <color name="colorAccent">#304FFE</color>
 </resources>

@@ -4,15 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="@dimen/activity_vertical_margin"
-    android:layout_marginStart="@dimen/activity_horizontal_margin"
-    android:layout_marginEnd="@dimen/activity_horizontal_margin"
     tools:context="com.motorola.cdeives.motofretado.MainActivity">
 
     <FrameLayout
         android:id="@+id/fragment_view_group"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -25,5 +26,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:elevation="@dimen/bottom_navigation_view_elevation"
+        android:background="@color/colorPrimary"
+        app:itemIconTint="@drawable/bottom_navigation_item"
+        app:itemTextColor="@drawable/bottom_navigation_item"
         app:menu="@menu/activity_main_bottom_navigation" />
 </android.support.constraint.ConstraintLayout>
