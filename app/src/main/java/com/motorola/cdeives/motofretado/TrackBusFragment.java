@@ -40,7 +40,8 @@ public class TrackBusFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<TrackBusMvp.Presenter>, TrackBusMvp.View,
         AddBusDialogFragment.OnClickListener {
     private static final String TAG = TrackBusFragment.class.getSimpleName();
-    private static final int REQUEST_FINE_LOCATION_PERMISSION = 0;
+    private static final int REQUEST_PERMISSION_LOCATION_UPDATE = 0;
+    private static final int REQUEST_PERMISSION_ACTIVITY_DETECTION = 1;
     private static final int TRACK_BUS_LOADER_ID = 0;
 
     private @Nullable TrackBusMvp.Presenter mPresenter;
@@ -69,7 +70,7 @@ public class TrackBusFragment extends Fragment
         } else {
             Log.d(TAG, "the app doesn't have location permission; requesting it to the user");
             requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_FINE_LOCATION_PERMISSION);
+                    REQUEST_PERMISSION_LOCATION_UPDATE);
         }
     }
 
@@ -89,7 +90,15 @@ public class TrackBusFragment extends Fragment
         }
 
         if (isChecked) {
-            mPresenter.startActivityDetection();
+            int permissionCheck = ContextCompat.checkSelfPermission(
+                    getActivity(), Manifest.permission.ACCESS_FINE_LOCATION);
+            if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+                mPresenter.startActivityDetection();
+            } else {
+                Log.d(TAG, "the app doesn't have location permission; requesting it to the user");
+                requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_PERMISSION_ACTIVITY_DETECTION);
+            }
         } else {
             mPresenter.stopActivityDetection();
         }
@@ -164,15 +173,22 @@ public class TrackBusFragment extends Fragment
                 + Arrays.toString(grantResults) + ")");
 
         switch (requestCode) {
-            case REQUEST_FINE_LOCATION_PERMISSION:
+            case REQUEST_PERMISSION_LOCATION_UPDATE:
+            case REQUEST_PERMISSION_ACTIVITY_DETECTION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "user granted permission");
                     if (mPresenter != null) {
-                        mPresenter.startLocationUpdate();
+                        switch (requestCode) {
+                            case REQUEST_PERMISSION_LOCATION_UPDATE:
+                                mPresenter.startLocationUpdate();
+                            case REQUEST_PERMISSION_ACTIVITY_DETECTION:
+                                mPresenter.startActivityDetection();
+                        }
                     } else {
-                        Log.w(TAG, "presenter is null; cannot start update location service");
+                        Log.w(TAG, "presenter is null; cannot start service");
                     }
                 } else {
+                    uncheckSwitchDetectAutomatically();
                     if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
                         Log.d(TAG, "user did NOT grant permission");
                         displayMessage(getString(R.string.fine_location_permission_rationale));
