@@ -24,4 +24,5 @@
     <string name="add_bus_button_description">Toque aqui para adicionar um fretado caso o seu não esteja listado</string>
     <string name="add_bus_dialog_title">Adicionar fretado</string>
     <string name="create_bus_failed">Não foi possível adicionar o fretado. Tente mais tarde.</string>
+    <string name="no_email_app_available">Não há nenhum programa de e-mail instalado.</string>
 </resources>

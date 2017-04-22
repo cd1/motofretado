@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.ncapdevi.fragnav.FragNavController;
 
@@ -69,7 +70,12 @@ public class MainActivity extends AppCompatActivity
                         .addEmailTo("cdeives@motorola.com")
                         .setSubject("Moto Fretado feedback")
                         .getIntent();
-                startActivity(intent);
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, R.string.no_email_app_available,
+                            Toast.LENGTH_SHORT).show();
+                }
                 break;
             default:
                 Log.wtf(TAG, "unexpected menu item click: " + item);
