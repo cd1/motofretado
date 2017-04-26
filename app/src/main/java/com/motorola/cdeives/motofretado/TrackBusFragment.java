@@ -27,7 +27,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -47,7 +46,7 @@ public class TrackBusFragment extends Fragment
     private @Nullable TrackBusMvp.Presenter mPresenter;
     private Spinner mSpinnerBusId;
     private Switch mSwitchDetectAutomatically;
-    private @Nullable SpinnerAdapter mSpinnerAdapter;
+    private @Nullable BusSpinnerAdapter mSpinnerAdapter;
     private ImageButton mButtonAddBus;
 
     @UiThread
@@ -270,8 +269,8 @@ public class TrackBusFragment extends Fragment
     @Override
     @UiThread
     public @Nullable String getBusId() {
-        return (mSpinnerAdapter != null && !mSpinnerAdapter.isEmpty())
-                ? mSpinnerAdapter.getItem(mSpinnerBusId.getSelectedItemPosition()).toString()
+        return (mSpinnerAdapter != null && mSpinnerAdapter.hasActualBusData())
+                ? mSpinnerBusId.getSelectedItem().toString()
                 : null;
     }
 

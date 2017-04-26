@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -39,7 +38,7 @@ public class ViewMapFragment extends Fragment
     private MapView mMapView;
     private @Nullable GoogleMap mMap;
     private @Nullable ViewMapMvp.Presenter mPresenter;
-    private @Nullable SpinnerAdapter mSpinnerAdapter;
+    private @Nullable BusSpinnerAdapter mSpinnerAdapter;
 
     @UiThread
     private void buttonViewMapClick() {
@@ -231,8 +230,8 @@ public class ViewMapFragment extends Fragment
     @Override
     @UiThread
     public @Nullable String getBusId() {
-        return (mSpinnerAdapter != null && !mSpinnerAdapter.isEmpty())
-                ? mSpinnerAdapter.getItem(mSpinnerBusId.getSelectedItemPosition()).toString()
+        return (mSpinnerAdapter != null && mSpinnerAdapter.hasActualBusData())
+                ? mSpinnerBusId.getSelectedItem().toString()
                 : null;
     }
 

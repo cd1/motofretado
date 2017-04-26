@@ -57,7 +57,9 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
 
         if (mAvailableBuses != null) {
             mView.setAvailableBuses(mAvailableBuses, mSelectedBusId);
-            mView.enableBusId();
+            if (!mAvailableBuses.isEmpty()) {
+                mView.enableBusId();
+            }
         }
 
         if (mIsUpdateLocationServiceRunning || mIsActivityDetectionServiceRunning) {
@@ -239,24 +241,28 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
             if (mView != null) {
                 String selectedBusId;
 
-                if (mSelectDefaultFromPref) {
-                    selectedBusId = PreferenceManager.getDefaultSharedPreferences(mContext)
-                            .getString(MOST_RECENT_TRACK_BUS_ID_PREF, null);
-                    Log.d(TAG, "preference read: "
-                            + MOST_RECENT_TRACK_BUS_ID_PREF + " => " + selectedBusId);
-                } else if (!TextUtils.isEmpty(mSelectedBusId)) {
-                    selectedBusId = mSelectedBusId;
+                if (!busesList.isEmpty()) {
+                    if (mSelectDefaultFromPref) {
+                        selectedBusId = PreferenceManager.getDefaultSharedPreferences(mContext)
+                                .getString(MOST_RECENT_TRACK_BUS_ID_PREF, null);
+                        Log.d(TAG, "preference read: "
+                                + MOST_RECENT_TRACK_BUS_ID_PREF + " => " + selectedBusId);
+                    } else if (!TextUtils.isEmpty(mSelectedBusId)) {
+                        selectedBusId = mSelectedBusId;
+                    } else {
+                        selectedBusId = null;
+                    }
+
+                    mView.enableBusId();
                 } else {
                     selectedBusId = null;
                 }
 
                 mView.setAvailableBuses(busesList, selectedBusId);
-                mView.enableBusId();
+                mAvailableBuses = busesList;
             } else {
                 Log.w(TAG, "view is null; cannot update the available bus numbers");
             }
-
-            mAvailableBuses = busesList;
         }
 
         @Override

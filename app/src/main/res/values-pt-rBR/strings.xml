@@ -25,4 +25,5 @@
     <string name="add_bus_dialog_title">Adicionar fretado</string>
     <string name="create_bus_failed">Não foi possível adicionar o fretado. Tente mais tarde.</string>
     <string name="no_email_app_available">Não há nenhum programa de e-mail instalado.</string>
+    <string name="no_buses_available">Nenhum fretado disponível</string>
 </resources>

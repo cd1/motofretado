@@ -45,7 +45,9 @@ class ViewMapPresenter implements ViewMapMvp.Presenter {
 
         if (mAvailableBuses != null) {
             mView.setAvailableBuses(mAvailableBuses, mSelectedBusId);
-            mView.enableBusIdInput();
+            if (!mAvailableBuses.isEmpty()) {
+                mView.enableBusIdInput();
+            }
         }
 
         if (mIsViewingBusLocation) {
@@ -166,12 +168,19 @@ class ViewMapPresenter implements ViewMapMvp.Presenter {
             List<Bus> busesList = Arrays.asList(buses);
 
             if (mView != null) {
-                String mostRecentBusId = PreferenceManager.getDefaultSharedPreferences(mContext)
-                        .getString(MOST_RECENT_VIEW_BUS_ID_PREF, null);
-                Log.d(TAG, "reading preference: "
-                        + MOST_RECENT_VIEW_BUS_ID_PREF + " => " + mostRecentBusId);
+                String mostRecentBusId;
+
+                if (!busesList.isEmpty()) {
+                    mostRecentBusId = PreferenceManager.getDefaultSharedPreferences(mContext)
+                            .getString(MOST_RECENT_VIEW_BUS_ID_PREF, null);
+                    Log.d(TAG, "preference read: "
+                            + MOST_RECENT_VIEW_BUS_ID_PREF + " => " + mostRecentBusId);
+                    mView.enableBusIdInput();
+                } else {
+                    mostRecentBusId = null;
+                }
+
                 mView.setAvailableBuses(busesList, mostRecentBusId);
-                mView.enableBusIdInput();
             } else {
                 Log.w(TAG, "view is null; cannot update the available bus numbers");
             }
