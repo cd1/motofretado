@@ -13,6 +13,7 @@ import android.util.Log;
 import com.motorola.cdeives.motofretado.http.Bus;
 import com.motorola.cdeives.motofretado.http.ModelListener;
 
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -97,7 +98,7 @@ class ViewMapPresenter implements ViewMapMvp.Presenter {
         }
 
         if (mHandler == null) {
-            mHandler = new MyHandler();
+            mHandler = new MyHandler(this);
         }
 
         if (mView != null) {
@@ -117,44 +118,58 @@ class ViewMapPresenter implements ViewMapMvp.Presenter {
         prefsEditor.apply();
     }
 
-    private class MyHandler extends Handler {
+    private static class MyHandler extends Handler {
+        private final @NonNull WeakReference<ViewMapPresenter> mPresenterRef;
+
+        private MyHandler(ViewMapPresenter presenter) {
+            mPresenterRef = new WeakReference<>(presenter);
+        }
+
         @Override
         public void handleMessage(Message msg) {
             Log.v(TAG, "> onHandleMessage(msg=" + msg + ")");
 
-            if (mView != null) {
-                String busId = mView.getBusId();
-                switch (msg.what) {
-                    case MSG_VIEW_BUS_LOCATION:
-                        mModel.readBus(busId, new ModelListener<Bus>() {
-                            @Override
-                            public void onSuccess(Bus data) {
-                                Calendar oldestAcceptableTime = Calendar.getInstance();
-                                oldestAcceptableTime.add(Calendar.MINUTE,
-                                        -RECENT_LOCATION_THRESHOLD);
+            ViewMapPresenter presenter = mPresenterRef.get();
+            if (presenter != null) {
+                if (presenter.mView != null) {
+                    String busId = presenter.mView.getBusId();
+                    switch (msg.what) {
+                        case MSG_VIEW_BUS_LOCATION:
+                            presenter.mModel.readBus(busId, new ModelListener<Bus>() {
+                                @Override
+                                public void onSuccess(Bus data) {
+                                    Calendar oldestAcceptableTime = Calendar.getInstance();
+                                    oldestAcceptableTime.add(Calendar.MINUTE,
+                                            -RECENT_LOCATION_THRESHOLD);
 
-                                if (data.updatedAt.after(oldestAcceptableTime.getTime())) {
-                                    mView.setMapMarker(busId, data.latitude, data.longitude);
-                                } else {
-                                    mView.displayMessage(R.string.view_bus_not_recent_message);
-                                    stopViewingBusLocation();
+                                    if (data.updatedAt.after(oldestAcceptableTime.getTime())) {
+                                        presenter.mView.setMapMarker(busId, data.latitude,
+                                                data.longitude);
+                                    } else {
+                                        presenter.mView.displayMessage(
+                                                R.string.view_bus_not_recent_message);
+                                        presenter.stopViewingBusLocation();
+                                    }
                                 }
-                            }
 
-                            @Override
-                            public void onError(Exception ex) {
-                                Log.e(TAG, "could not read bus " + busId, ex);
-                            }
-                        });
+                                @Override
+                                public void onError(Exception ex) {
+                                    Log.e(TAG, "could not read bus " + busId, ex);
+                                }
+                            });
 
-                        Message newMsg = mHandler.obtainMessage(MSG_VIEW_BUS_LOCATION);
-                        mHandler.sendMessageDelayed(newMsg, REPEAT_DELAY);
-                        break;
-                    default:
-                        Log.wtf(TAG, "unexpected message code: " + msg.what);
+                            Message newMsg = presenter.mHandler.obtainMessage(
+                                    MSG_VIEW_BUS_LOCATION);
+                            presenter.mHandler.sendMessageDelayed(newMsg, REPEAT_DELAY);
+                            break;
+                        default:
+                            Log.wtf(TAG, "unexpected message code: " + msg.what);
+                    }
+                } else {
+                    Log.w(TAG, "view is null; cannot get selected bus ID");
                 }
             } else {
-                Log.w(TAG, "view is null; cannot get selected bus ID");
+                Log.w(TAG, "presenter reference doesn't exist anymore; ignoring message");
             }
 
             Log.v(TAG, "< onHandleMessage(msg=" + msg + ")");

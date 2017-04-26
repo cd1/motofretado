@@ -16,6 +16,7 @@ import android.util.Log;
 import com.motorola.cdeives.motofretado.http.Bus;
 import com.motorola.cdeives.motofretado.http.ModelListener;
 
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,7 +39,7 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
         mContext = context;
 
         mModel = new TrackBusModel(mContext);
-        Messenger messenger = new Messenger(new MyHandler());
+        Messenger messenger = new Messenger(new MyHandler(this));
 
         mActivityDetectionServiceIntent = new Intent(mContext, ActivityDetectionService.class);
         mActivityDetectionServiceIntent.putExtra(
@@ -143,7 +144,7 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
         mModel.createBus(bus, new PostBusListener());
     }
 
-    class MyHandler extends Handler {
+    static class MyHandler extends Handler {
         static final int MSG_DISPLAY_TOAST = 0;
         static final int MSG_GMS_CONNECTION_FAILED = 1;
         static final int MSG_UPDATE_LOCATION_SERVICE_CONNECTED = 2;
@@ -153,71 +154,83 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
         static final int MSG_USER_IS_ON_FOOT = 6;
         static final int MSG_USER_IS_IN_VEHICLE = 7;
 
+        private final @NonNull WeakReference<TrackBusPresenter> mPresenterRef;
+
+        MyHandler(TrackBusPresenter presenter) {
+            mPresenterRef = new WeakReference<>(presenter);
+        }
+
         @Override
         @UiThread
         public void handleMessage(Message msg) {
             Log.v(TAG, "> handleMessage(msg=" + msg + ")");
 
-            switch (msg.what) {
-                case MSG_DISPLAY_TOAST:
-                    if (mView != null) {
-                        mView.displayMessage(mContext.getString(msg.arg1));
-                    } else {
-                        Log.w(TAG, "view is null; cannot display message");
-                    }
-                    break;
-                case MSG_GMS_CONNECTION_FAILED:
-                    if (mView != null) {
-                        mView.displayMessage(mContext.getString(R.string.gms_connection_failed));
-                    } else {
-                        Log.d(TAG, "view is null; cannot display message");
-                    }
-                    break;
-                case MSG_UPDATE_LOCATION_SERVICE_DISCONNECTED:
-                    mIsUpdateLocationServiceRunning = false;
-                    mIsActivityDetectionServiceRunning = false;
-                    if (mView != null) {
-                        mView.enableBusId();
-                        mView.uncheckSwitchDetectAutomatically();
-                    } else {
-                        Log.d(TAG, "view is null; cannot update UI");
-                    }
-                    mModel.cancelAllRequests();
-                    break;
-                case MSG_UPDATE_LOCATION_SERVICE_CONNECTED:
-                    mIsUpdateLocationServiceRunning = true;
-                    if (mView != null) {
-                        mView.disableBusId();
-                    } else {
-                        Log.d(TAG, "view is null; cannot update UI");
-                    }
-                    break;
-                case MSG_ACTIVITY_DETECTION_SERVICE_CONNECTED:
-                    mIsActivityDetectionServiceRunning = true;
-                    break;
-                case MSG_ACTIVITY_DETECTION_SERVICE_DISCONNECTED:
-                    mIsActivityDetectionServiceRunning = false;
-                    if (mView != null) {
-                        if (!mIsUpdateLocationServiceRunning) {
-                            mView.enableBusId();
+            TrackBusPresenter presenter = mPresenterRef.get();
+            if (presenter != null) {
+                switch (msg.what) {
+                    case MSG_DISPLAY_TOAST:
+                        if (presenter.mView != null) {
+                            presenter.mView.displayMessage(presenter.mContext.getString(msg.arg1));
+                        } else {
+                            Log.w(TAG, "view is null; cannot display message");
                         }
-                    } else {
-                        Log.d(TAG, "view is null; cannot update UI");
-                    }
-                    break;
-                case MSG_USER_IS_ON_FOOT:
-                    if (mIsUpdateLocationServiceRunning) {
-                        stopLocationUpdate();
-                        stopActivityDetection();
-                    }
-                    break;
-                case MSG_USER_IS_IN_VEHICLE:
-                    if (!mIsUpdateLocationServiceRunning) {
-                        startLocationUpdate();
-                    }
-                    break;
-                default:
-                    Log.wtf(TAG, "unexpected message code: " + msg.what);
+                        break;
+                    case MSG_GMS_CONNECTION_FAILED:
+                        if (presenter.mView != null) {
+                            presenter.mView.displayMessage(
+                                    presenter.mContext.getString(R.string.gms_connection_failed));
+                        } else {
+                            Log.d(TAG, "view is null; cannot display message");
+                        }
+                        break;
+                    case MSG_UPDATE_LOCATION_SERVICE_DISCONNECTED:
+                        presenter.mIsUpdateLocationServiceRunning = false;
+                        presenter.mIsActivityDetectionServiceRunning = false;
+                        if (presenter.mView != null) {
+                            presenter.mView.enableBusId();
+                            presenter.mView.uncheckSwitchDetectAutomatically();
+                        } else {
+                            Log.d(TAG, "view is null; cannot update UI");
+                        }
+                        presenter.mModel.cancelAllRequests();
+                        break;
+                    case MSG_UPDATE_LOCATION_SERVICE_CONNECTED:
+                        presenter.mIsUpdateLocationServiceRunning = true;
+                        if (presenter.mView != null) {
+                            presenter.mView.disableBusId();
+                        } else {
+                            Log.d(TAG, "view is null; cannot update UI");
+                        }
+                        break;
+                    case MSG_ACTIVITY_DETECTION_SERVICE_CONNECTED:
+                        presenter.mIsActivityDetectionServiceRunning = true;
+                        break;
+                    case MSG_ACTIVITY_DETECTION_SERVICE_DISCONNECTED:
+                        presenter.mIsActivityDetectionServiceRunning = false;
+                        if (presenter.mView != null) {
+                            if (!presenter.mIsUpdateLocationServiceRunning) {
+                                presenter.mView.enableBusId();
+                            }
+                        } else {
+                            Log.d(TAG, "view is null; cannot update UI");
+                        }
+                        break;
+                    case MSG_USER_IS_ON_FOOT:
+                        if (presenter.mIsUpdateLocationServiceRunning) {
+                            presenter.stopLocationUpdate();
+                            presenter.stopActivityDetection();
+                        }
+                        break;
+                    case MSG_USER_IS_IN_VEHICLE:
+                        if (!presenter.mIsUpdateLocationServiceRunning) {
+                            presenter.startLocationUpdate();
+                        }
+                        break;
+                    default:
+                        Log.wtf(TAG, "unexpected message code: " + msg.what);
+                }
+            } else {
+                Log.w(TAG, "presenter reference doesn't exist anymore; ignoring message");
             }
 
             Log.v(TAG, "< handleMessage(msg=" + msg + ")");
