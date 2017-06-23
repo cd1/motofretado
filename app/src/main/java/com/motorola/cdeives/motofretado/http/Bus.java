@@ -2,40 +2,26 @@ package com.motorola.cdeives.motofretado.http;
 
 import android.support.annotation.NonNull;
 
-import com.google.gson.annotations.SerializedName;
+import com.motorola.cdeives.motofretado.http.jsonapi.BusDocument;
+import com.motorola.cdeives.motofretado.http.jsonapi.BusesDocument;
 
 import java.util.Date;
 
-public class Bus implements Cloneable, Comparable<Bus> {
+public class Bus {
     public String id;
-    @SerializedName("lat")
     public double latitude;
-    @SerializedName("long")
     public double longitude;
-    @SerializedName("updated_at")
     public Date updatedAt;
-    @SerializedName("created_at")
     public Date createdAt;
 
-    @Override
-    public Bus clone() {
-        Bus bus;
-        try {
-            bus = (Bus) super.clone();
-        } catch (CloneNotSupportedException ex) {
-            // should never happen
-            return null;
-        }
+    public static @NonNull Bus createFromHTTPBody(@NonNull String body) {
+        BusDocument doc = Util.getGsonInstance().fromJson(body, BusDocument.class);
+        return doc.toBus();
+    }
 
-        if (updatedAt != null) {
-            bus.updatedAt = (Date) updatedAt.clone();
-        }
-
-        if (createdAt != null) {
-            bus.createdAt = (Date) createdAt.clone();
-        }
-
-        return bus;
+    public static @NonNull Bus[] createBusesFromHTTPBody(@NonNull String body) {
+        BusesDocument doc = Util.getGsonInstance().fromJson(body, BusesDocument.class);
+        return doc.toBuses();
     }
 
     @Override
@@ -43,8 +29,8 @@ public class Bus implements Cloneable, Comparable<Bus> {
         return id;
     }
 
-    @Override
-    public int compareTo(@NonNull Bus otherBus) {
-        return id.compareTo(otherBus.id);
+    public @NonNull String toHTTPBody() {
+        BusDocument doc = BusDocument.parse(this);
+        return Util.getGsonInstance().toJson(doc, BusDocument.class);
     }
 }

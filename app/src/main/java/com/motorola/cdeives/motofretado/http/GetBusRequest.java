@@ -6,6 +6,7 @@ import android.util.Log;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.motorola.cdeives.motofretado.http.jsonapi.JSONAPI;
 
 import org.json.JSONObject;
 
@@ -22,9 +23,12 @@ public class GetBusRequest extends JsonObjectRequest {
 
     @Override
     public Map<String, String> getHeaders() throws AuthFailureError {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Accept", "application/json");
+        Log.v(TAG, "> getHeaders()");
 
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Accept", JSONAPI.CONTENT_TYPE);
+
+        Log.v(TAG, "< getHeaders(): " + headers);
         return headers;
     }
 }

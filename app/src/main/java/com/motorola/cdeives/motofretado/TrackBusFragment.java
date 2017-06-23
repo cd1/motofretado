@@ -3,9 +3,6 @@ package com.motorola.cdeives.motofretado;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -47,7 +44,6 @@ public class TrackBusFragment extends Fragment
     private Spinner mSpinnerBusId;
     private Switch mSwitchDetectAutomatically;
     private @Nullable BusSpinnerAdapter mSpinnerAdapter;
-    private ImageButton mButtonAddBus;
 
     @UiThread
     private void buttonEnterBusClick() {
@@ -113,8 +109,8 @@ public class TrackBusFragment extends Fragment
 
         mSpinnerBusId = (Spinner) rootView.findViewById(R.id.spinnerBusID);
 
-        mButtonAddBus = (ImageButton) rootView.findViewById(R.id.buttonAddBus);
-        mButtonAddBus.setOnClickListener(view -> {
+        ImageButton buttonAddBus = (ImageButton) rootView.findViewById(R.id.buttonAddBus);
+        buttonAddBus.setOnClickListener(view -> {
             DialogFragment fragment = new AddBusDialogFragment();
             fragment.setTargetFragment(TrackBusFragment.this, 0);
             fragment.show(getFragmentManager(), AddBusDialogFragment.class.getName());
@@ -286,25 +282,12 @@ public class TrackBusFragment extends Fragment
     @UiThread
     public void enableBusId() {
         mSpinnerBusId.setEnabled(true);
-
-        mButtonAddBus.setEnabled(true);
-        mButtonAddBus.setImageDrawable(getContext().getDrawable(R.drawable.ic_add));
     }
 
     @Override
     @UiThread
     public void disableBusId() {
         mSpinnerBusId.setEnabled(false);
-
-        mButtonAddBus.setEnabled(false);
-        Drawable drawable = getContext().getDrawable(R.drawable.ic_add);
-        if (drawable != null) {
-            drawable = drawable.mutate();
-            drawable.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-            mButtonAddBus.setImageDrawable(drawable);
-        } else {
-            Log.wtf(TAG, "Drawable \"Add\" is null; cannot convert it to grayscale");
-        }
     }
 
     @Override

@@ -14,7 +14,6 @@ import com.motorola.cdeives.motofretado.http.ModelListener;
 import com.motorola.cdeives.motofretado.http.PostBusRequest;
 import com.motorola.cdeives.motofretado.http.PostBusResponseListener;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 @UiThread
@@ -27,7 +26,7 @@ class TrackBusModel implements TrackBusMvp.Model {
 
     @Override
     public void readAllBuses(@NonNull ModelListener<Bus[]> listener) {
-        Request<JSONArray> req = new GetBusesRequest(new GetBusesResponseListener(listener));
+        Request<JSONObject> req = new GetBusesRequest(new GetBusesResponseListener(listener));
         mQueue.add(req);
     }
 

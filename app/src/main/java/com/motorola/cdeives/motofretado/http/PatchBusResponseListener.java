@@ -7,12 +7,12 @@ import com.android.volley.VolleyError;
 
 import org.json.JSONObject;
 
-public class PostBusResponseListener implements Response.Listener<JSONObject>, Response.ErrorListener {
-    private static final String TAG = PostBusResponseListener.class.getSimpleName();
+public class PatchBusResponseListener implements Response.Listener<JSONObject>, Response.ErrorListener  {
+    private static final String TAG = PatchBusResponseListener.class.getSimpleName();
 
     private final ModelListener<Bus> mListener;
 
-    public PostBusResponseListener(ModelListener<Bus> listener) {
+    public PatchBusResponseListener(ModelListener<Bus> listener) {
         mListener = listener;
     }
 
@@ -33,10 +33,10 @@ public class PostBusResponseListener implements Response.Listener<JSONObject>, R
         if (error.networkResponse != null) {
             Error httpError = Error.createFromHTTPBody(new String(error.networkResponse.data));
             if (!httpError.status.isEmpty()) {
-                Log.e(TAG, String.format("unexpected error POSTting bus: %s - %s [%s]",
+                Log.e(TAG, String.format("unexpected error PATCHing bus: %s - %s [%s]",
                         httpError.status, httpError.title, httpError.details), error);
             } else {
-                Log.e(TAG, "unexpected error POSTting bus [no additional detail]");
+                Log.e(TAG, "unexpected error PATCHing bus [no additional detail]");
             }
 
             mListener.onError(error);

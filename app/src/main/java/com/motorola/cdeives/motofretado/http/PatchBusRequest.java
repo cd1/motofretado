@@ -1,15 +1,16 @@
 package com.motorola.cdeives.motofretado.http;
 
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.motorola.cdeives.motofretado.http.jsonapi.JSONAPI;
 
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,26 +27,23 @@ public class PatchBusRequest extends JsonObjectRequest {
 
     @Override
     public Map<String, String> getHeaders() throws AuthFailureError {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Accept", "application/json");
-        headers.put("Content-Type", "application/json");
+        Log.v(TAG, "> getHeaders()");
 
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Accept", JSONAPI.CONTENT_TYPE);
+        headers.put("Content-Type", JSONAPI.CONTENT_TYPE);
+
+        Log.v(TAG, "< getHeaders(): " + headers);
         return headers;
     }
 
     @Override
     public byte[] getBody() {
-        Bus bus = mBus;
+        Log.v(TAG, "> getBody()");
 
-        if (!TextUtils.isEmpty(mBus.id)) {
-            // PATCH /bus/<id> doesn't accept IDs, so let's create a new bus without it
-            bus = new Bus();
-            bus.latitude = mBus.latitude;
-            bus.longitude = mBus.longitude;
-        }
+        byte[] body = mBus.toHTTPBody().getBytes();
 
-        String jsonString = Util.getGsonInstance().toJson(bus, Bus.class);
-
-        return jsonString.getBytes();
+        Log.v(TAG, "< getBody(): " + Arrays.toString(body));
+        return body;
     }
 }

@@ -9,7 +9,7 @@ public class Util {
     public static final String SERVER_URL = "https://pumpkin-crisp-26207.herokuapp.com";
 
     private static final String TAG = Util.class.getSimpleName();
-    private static final String ISO8601_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSZ";
+    private static final String ISO8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 
     private static Gson sGson;
 

@@ -22,10 +22,8 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -33,9 +31,9 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.motorola.cdeives.motofretado.http.Bus;
-import com.motorola.cdeives.motofretado.http.Error;
+import com.motorola.cdeives.motofretado.http.ModelListener;
 import com.motorola.cdeives.motofretado.http.PatchBusRequest;
-import com.motorola.cdeives.motofretado.http.Util;
+import com.motorola.cdeives.motofretado.http.PatchBusResponseListener;
 
 import org.json.JSONObject;
 
@@ -229,45 +227,30 @@ public class UpdateLocationService extends Service
         bus.id = mBusId;
         bus.latitude = location.getLatitude();
         bus.longitude = location.getLongitude();
-        bus.updatedAt = Calendar.getInstance().getTime();
 
-        JsonObjectRequest request = new PatchBusRequest(bus, new PatchBusResponseListener());
-        Log.d(TAG, "PATCH /bus/" + mBusId);
+        Request<JSONObject> request = new PatchBusRequest(bus,
+                new PatchBusResponseListener(new PatchBusListener()));
         mRequestQueue.add(request);
 
         Log.v(TAG, "< onLocationChanged(location=" + location + ")");
     }
 
-    private class PatchBusResponseListener
-            implements Response.Listener<JSONObject>, Response.ErrorListener {
+    private class PatchBusListener implements ModelListener<Bus> {
         private final String TAG = getClass().getSimpleName();
 
         @Override
-        public void onResponse(JSONObject response) {
-            Log.v(TAG, "> onResponse([JSONObject]");
-
+        public void onSuccess(Bus bus) {
             Log.d(TAG, "bus location updated successfully");
-
-            Log.v(TAG, "< onResponse([JSONObject]");
         }
 
         @Override
-        public void onErrorResponse(VolleyError error) {
-            Log.v(TAG, "> onErrorResponse(error=" + error + ")");
-
-            if (error.networkResponse != null) {
-                Error httpError = Util.getGsonInstance().fromJson(new String(error.networkResponse.data), Error.class);
-                Log.e(TAG, "unexpected error PATCHing bus: " + httpError.details + " (" + httpError.status + ")", error);
-
-                Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_DISPLAY_TOAST, R.string.update_network_error, 0);
-                try {
-                    mMessenger.send(msg);
-                } catch (RemoteException ex) {
-                    Log.e(TAG, "error sending message to display toast", ex);
-                }
+        public void onError(Exception error) {
+            Message msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_DISPLAY_TOAST, R.string.update_network_error, 0);
+            try {
+                mMessenger.send(msg);
+            } catch (RemoteException ex) {
+                Log.e(TAG, "error sending message to display toast", ex);
             }
-
-            Log.v(TAG, "< onErrorResponse(error=" + error + ")");
         }
     }
 }
