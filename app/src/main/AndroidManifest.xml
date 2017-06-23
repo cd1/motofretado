@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.motorola.cdeives.motofretado">
+    package="com.gmail.cristiandeives.motofretado">
 
     <!-- Track the user's location only when inside the bus -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
