@@ -33,6 +33,8 @@ interface ViewMapMvp {
         void displayMessage(@StringRes int messageId);
         @UiThread
         void setAvailableBuses(@NonNull List<Bus> buses, @Nullable String defaultBusId);
+        @UiThread
+        void setBusError(@NonNull String errorMessage);
     }
 
     interface Presenter {

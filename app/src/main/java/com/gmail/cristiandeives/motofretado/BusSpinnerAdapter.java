@@ -1,8 +1,11 @@
 package com.gmail.cristiandeives.motofretado;
 
 import android.content.Context;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,17 +15,19 @@ import android.widget.TextView;
 
 import com.gmail.cristiandeives.motofretado.http.Bus;
 
-import java.util.List;
-
+@UiThread
 class BusSpinnerAdapter extends ArrayAdapter<Bus> {
     private static final String TAG = BusSpinnerAdapter.class.getSimpleName();
+    private static final @LayoutRes int DROPDOWN_ITEM_RESOURCE =
+            android.R.layout.simple_spinner_dropdown_item;
+    private static final @LayoutRes int ITEM_RESOURCE = android.R.layout.simple_spinner_item;
 
     private final @NonNull LayoutInflater mInflater;
+    private @Nullable String mErrorMessage;
 
-    BusSpinnerAdapter(Context context, List<Bus> buses) {
-        super(context, android.R.layout.simple_spinner_item, buses);
-        setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
+    BusSpinnerAdapter(@NonNull Context context) {
+        super(context, ITEM_RESOURCE);
+        setDropDownViewResource(DROPDOWN_ITEM_RESOURCE);
         mInflater = (LayoutInflater) getContext().getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -31,24 +36,10 @@ class BusSpinnerAdapter extends ArrayAdapter<Bus> {
     public int getCount() {
         Log.v(TAG, "> getCount()");
 
-        int count = (super.getCount() > 0)
-                ? super.getCount()
-                : 1;
+        int count = Math.max(super.getCount(), 1);
 
         Log.v(TAG, "< getCount(): " + count);
         return count;
-    }
-
-    @Override
-    public @Nullable Bus getItem(int position) {
-        Log.v(TAG, "> getItem(position=" + position + ")");
-
-        Bus item = (super.getCount() > 0)
-                ? super.getItem(position)
-                : null;
-
-        Log.v(TAG, "< getItem(position=" + position + "): " + item);
-        return item;
     }
 
     @Override
@@ -59,14 +50,18 @@ class BusSpinnerAdapter extends ArrayAdapter<Bus> {
 
         View view;
 
-        if (super.getCount() == 0) {
+        if (!hasActualBusData()) {
             if (convertView == null) {
-                convertView = mInflater.inflate(android.R.layout.simple_spinner_item, parent,
-                        false);
+                convertView = mInflater.inflate(ITEM_RESOURCE, parent, false);
             }
 
             TextView textView = (TextView) convertView;
-            textView.setText(R.string.no_buses_available);
+            if (!TextUtils.isEmpty(mErrorMessage)) {
+                textView.setError("");
+                textView.setText(mErrorMessage);
+            } else {
+                textView.setText(R.string.loading_bus_numbers);
+            }
 
             view = textView;
         } else {
@@ -76,6 +71,11 @@ class BusSpinnerAdapter extends ArrayAdapter<Bus> {
         Log.v(TAG, "< getView(position=" + position + ", convertView=" + convertView
                 + ", parent=" + parent + "): " + view);
         return view;
+    }
+
+    void setError(@NonNull String message) {
+        mErrorMessage = message;
+        clear();
     }
 
     boolean hasActualBusData() {

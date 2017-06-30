@@ -33,6 +33,7 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
     private boolean mIsActivityDetectionServiceRunning;
     private @Nullable String mSelectedBusId;
     private @Nullable List<Bus> mAvailableBuses;
+    private @Nullable String mBusErrorMessage;
 
     @UiThread
     TrackBusPresenter(@NonNull Context context) {
@@ -56,11 +57,11 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
     public void onAttach(@NonNull TrackBusMvp.View view) {
         mView = view;
 
-        if (mAvailableBuses != null) {
+        if (!TextUtils.isEmpty(mBusErrorMessage)) {
+            mView.setBusError(mBusErrorMessage);
+        } else if (mAvailableBuses != null) {
             mView.setAvailableBuses(mAvailableBuses, mSelectedBusId);
-            if (!mAvailableBuses.isEmpty()) {
-                mView.enableBusId();
-            }
+            mView.enableBusId();
         }
 
         if (mIsUpdateLocationServiceRunning || mIsActivityDetectionServiceRunning) {
@@ -267,12 +268,13 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
                     }
 
                     mView.enableBusId();
+                    mView.setAvailableBuses(busesList, selectedBusId);
+                    mBusErrorMessage = null;
+                    mAvailableBuses = busesList;
                 } else {
-                    selectedBusId = null;
+                    mBusErrorMessage = mContext.getString(R.string.no_buses_available);
+                    mView.setBusError(mBusErrorMessage);
                 }
-
-                mView.setAvailableBuses(busesList, selectedBusId);
-                mAvailableBuses = busesList;
             } else {
                 Log.w(TAG, "view is null; cannot update the available bus numbers");
             }
@@ -282,7 +284,8 @@ class TrackBusPresenter implements TrackBusMvp.Presenter {
         public void onError(Exception ex) {
             Log.e(TAG, "could not read buses", ex);
             if (mView != null) {
-                mView.displayMessage(mContext.getString(R.string.read_buses_failed));
+                mBusErrorMessage = mContext.getString(R.string.read_buses_failed);
+                mView.setBusError(mBusErrorMessage);
             } else {
                 Log.w(TAG, "view is null; cannot display error message");
             }

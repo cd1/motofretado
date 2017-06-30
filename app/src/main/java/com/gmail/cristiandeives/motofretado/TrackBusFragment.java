@@ -43,7 +43,7 @@ public class TrackBusFragment extends Fragment
     private @Nullable TrackBusMvp.Presenter mPresenter;
     private Spinner mSpinnerBusId;
     private Switch mSwitchDetectAutomatically;
-    private @Nullable BusSpinnerAdapter mSpinnerAdapter;
+    private BusSpinnerAdapter mSpinnerAdapter;
 
     @UiThread
     private void buttonEnterBusClick() {
@@ -108,6 +108,8 @@ public class TrackBusFragment extends Fragment
         View rootView = inflater.inflate(R.layout.fragment_track_bus, container, false);
 
         mSpinnerBusId = (Spinner) rootView.findViewById(R.id.spinnerBusID);
+        mSpinnerAdapter = new BusSpinnerAdapter(getContext());
+        mSpinnerBusId.setAdapter(mSpinnerAdapter);
 
         ImageButton buttonAddBus = (ImageButton) rootView.findViewById(R.id.buttonAddBus);
         buttonAddBus.setOnClickListener(view -> {
@@ -299,8 +301,8 @@ public class TrackBusFragment extends Fragment
     @Override
     @UiThread
     public void setAvailableBuses(@NonNull List<Bus> buses, @Nullable String selectedBusId) {
-        mSpinnerAdapter = new BusSpinnerAdapter(getContext(), buses);
-        mSpinnerBusId.setAdapter(mSpinnerAdapter);
+        mSpinnerAdapter.clear();
+        mSpinnerAdapter.addAll(buses);
 
         if (!TextUtils.isEmpty(selectedBusId)) {
             for (int i = 0; i < buses.size(); i++) {
@@ -309,6 +311,15 @@ public class TrackBusFragment extends Fragment
                 }
             }
         }
+    }
+
+    @Override
+    @UiThread
+    public void setBusError(@NonNull String errorMessage) {
+        mSpinnerAdapter.setError(errorMessage);
+        mSpinnerBusId.setAdapter(mSpinnerAdapter);
+        mSpinnerAdapter.notifyDataSetChanged();
+        disableBusId();
     }
 
     @Override

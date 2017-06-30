@@ -16,11 +16,13 @@
     <string name="notification_title">Tracking bus location</string>
     <string name="notification_stop_title">Stop</string>
 
+    <string name="loading_bus_numbers">Loading bus numbers…</string>
     <string name="empty_bus_id_message">You need to enter the bus number</string>
     <string name="update_network_error">Failed to update the bus location</string>
     <string name="gms_connection_failed">Failed to connect to Google Play Services. Make sure you have the latest version installed.</string>
-    <string name="read_buses_failed">Failed to fetch the available bus numbers. Please try again later.</string>
+    <string name="read_buses_failed">Failed to fetch the bus numbers.</string>
     <string name="create_bus_failed">Failed to create the bus. Please try again later.</string>
+    <string name="read_bus_failed">Failed to fetch the bus location.</string>
 
     <string name="track_bus_title">Track</string>
     <string name="view_map_title">View</string>

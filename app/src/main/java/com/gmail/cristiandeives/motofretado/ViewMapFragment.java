@@ -38,7 +38,7 @@ public class ViewMapFragment extends Fragment
     private MapView mMapView;
     private @Nullable GoogleMap mMap;
     private @Nullable ViewMapMvp.Presenter mPresenter;
-    private @Nullable BusSpinnerAdapter mSpinnerAdapter;
+    private BusSpinnerAdapter mSpinnerAdapter;
 
     @UiThread
     private void buttonViewMapClick() {
@@ -66,6 +66,8 @@ public class ViewMapFragment extends Fragment
         View rootView = inflater.inflate(R.layout.fragment_view_map, container, false);
 
         mSpinnerBusId = (Spinner) rootView.findViewById(R.id.spinnerBusID);
+        mSpinnerAdapter = new BusSpinnerAdapter(getContext());
+        mSpinnerBusId.setAdapter(mSpinnerAdapter);
 
         mButtonViewMap = (Button) rootView.findViewById(R.id.buttonViewMap);
         mButtonViewMap.setOnClickListener(view -> buttonViewMapClick());
@@ -274,8 +276,8 @@ public class ViewMapFragment extends Fragment
     @Override
     @UiThread
     public void setAvailableBuses(@NonNull List<Bus> buses, String defaultBusId) {
-        mSpinnerAdapter = new BusSpinnerAdapter(getContext(), buses);
-        mSpinnerBusId.setAdapter(mSpinnerAdapter);
+        mSpinnerAdapter.clear();
+        mSpinnerAdapter.addAll(buses);
 
         if (!TextUtils.isEmpty(defaultBusId)) {
             for (int i = 0; i < buses.size(); i++) {
@@ -284,5 +286,14 @@ public class ViewMapFragment extends Fragment
                 }
             }
         }
+    }
+
+    @Override
+    @UiThread
+    public void setBusError(@NonNull String errorMessage) {
+        mSpinnerAdapter.setError(errorMessage);
+        mSpinnerBusId.setAdapter(mSpinnerAdapter);
+        mSpinnerAdapter.notifyDataSetChanged();
+        disableBusIdInput();
     }
 }

@@ -32,6 +32,8 @@ interface TrackBusMvp {
         void uncheckSwitchDetectAutomatically();
         @UiThread
         void setAvailableBuses(@NonNull List<Bus> buses, @Nullable String selectedBusId);
+        @UiThread
+        void setBusError(@NonNull String errorMessage);
     }
 
     interface Presenter {

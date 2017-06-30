@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.gmail.cristiandeives.motofretado.http.Bus;
@@ -32,6 +33,7 @@ class ViewMapPresenter implements ViewMapMvp.Presenter {
     private boolean mIsViewingBusLocation;
     private @Nullable String mSelectedBusId;
     private @Nullable List<Bus> mAvailableBuses;
+    private @Nullable String mBusErrorMessage;
 
     ViewMapPresenter(@NonNull Context context) {
         mContext = context;
@@ -44,11 +46,11 @@ class ViewMapPresenter implements ViewMapMvp.Presenter {
     public void onAttach(@NonNull ViewMapMvp.View view) {
         mView = view;
 
-        if (mAvailableBuses != null) {
+        if (!TextUtils.isEmpty(mBusErrorMessage)) {
+            mView.setBusError(mBusErrorMessage);
+        } else if (mAvailableBuses != null) {
             mView.setAvailableBuses(mAvailableBuses, mSelectedBusId);
-            if (!mAvailableBuses.isEmpty()) {
-                mView.enableBusIdInput();
-            }
+            mView.enableBusIdInput();
         }
 
         if (mIsViewingBusLocation) {
@@ -155,6 +157,8 @@ class ViewMapPresenter implements ViewMapMvp.Presenter {
                                 @Override
                                 public void onError(Exception ex) {
                                     Log.e(TAG, "could not read bus " + busId, ex);
+                                    presenter.mView.displayMessage(R.string.read_bus_failed);
+                                    presenter.stopViewingBusLocation();
                                 }
                             });
 
@@ -191,23 +195,25 @@ class ViewMapPresenter implements ViewMapMvp.Presenter {
                     Log.d(TAG, "preference read: "
                             + MOST_RECENT_VIEW_BUS_ID_PREF + " => " + mostRecentBusId);
                     mView.enableBusIdInput();
+                    mView.setAvailableBuses(busesList, mostRecentBusId);
+                    mBusErrorMessage = null;
+                    mAvailableBuses = busesList;
                 } else {
-                    mostRecentBusId = null;
+                    mBusErrorMessage = mContext.getString(R.string.no_buses_available);
+                    mView.setBusError(mBusErrorMessage);
                 }
-
-                mView.setAvailableBuses(busesList, mostRecentBusId);
             } else {
                 Log.w(TAG, "view is null; cannot update the available bus numbers");
             }
 
-            mAvailableBuses = busesList;
         }
 
         @Override
         public void onError(Exception ex) {
             Log.e(TAG, "could not read buses", ex);
             if (mView != null) {
-                mView.displayMessage(R.string.read_buses_failed);
+                mBusErrorMessage = mContext.getString(R.string.read_buses_failed);
+                mView.setBusError(mBusErrorMessage);
             } else {
                 Log.w(TAG, "view is null; cannot display error message");
             }

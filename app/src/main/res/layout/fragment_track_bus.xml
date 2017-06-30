@@ -20,8 +20,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textBusID"
             app:layout_constraintRight_toLeftOf="@+id/buttonAddBus"
-            style="@style/Base.Widget.AppCompat.Spinner.Underlined"
-            android:entries="@array/default_bus_id" />
+            style="@style/Base.Widget.AppCompat.Spinner.Underlined" />
 
         <ImageButton
             android:layout_width="wrap_content"
