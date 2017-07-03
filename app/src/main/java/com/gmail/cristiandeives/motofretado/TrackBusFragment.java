@@ -178,8 +178,10 @@ public class TrackBusFragment extends Fragment
                         switch (requestCode) {
                             case REQUEST_PERMISSION_LOCATION_UPDATE:
                                 mPresenter.startLocationUpdate();
+                                break;
                             case REQUEST_PERMISSION_ACTIVITY_DETECTION:
                                 mPresenter.startActivityDetection();
+                                break;
                         }
                     } else {
                         Log.w(TAG, "presenter is null; cannot start service");
