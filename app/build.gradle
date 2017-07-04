@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 25
@@ -9,9 +11,6 @@ android {
         targetSdkVersion 25
         versionCode 8
         versionName '0.6.2'
-        jackOptions {
-            enabled true
-        }
     }
     buildTypes {
         release {
@@ -20,10 +19,6 @@ android {
         }
     }
     productFlavors {
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -39,4 +34,8 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.ncapdevi:frag-nav:1.4.0'
     testCompile 'junit:junit:4.12'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }

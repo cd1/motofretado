@@ -1,0 +1,233 @@
+package com.gmail.cristiandeives.motofretado
+
+import android.os.Bundle
+import android.support.annotation.MainThread
+import android.support.annotation.StringRes
+import android.support.annotation.UiThread
+import android.support.v4.app.Fragment
+import android.support.v4.app.LoaderManager
+import android.support.v4.content.Loader
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import com.gmail.cristiandeives.motofretado.http.Bus
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.android.synthetic.main.fragment_view_map.*
+
+@MainThread
+internal class ViewMapFragment : Fragment(), LoaderManager.LoaderCallbacks<ViewMapMvp.Presenter>, ViewMapMvp.View {
+    companion object {
+        private val TAG = ViewMapFragment::class.java.simpleName
+        private const val MAP_ZOOM_LEVEL = 15f // streets level
+        private const val VIEW_MAP_LOADER_ID = 0
+    }
+
+    private lateinit var mSpinnerAdapter: BusSpinnerAdapter
+    private var mMap: GoogleMap? = null
+    private var mPresenter: ViewMapMvp.Presenter? = null
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        Log.v(TAG, "> onCreateView(inflater=$inflater, container=$container, savedInstanceState=$savedInstanceState)")
+
+        val rootView = inflater.inflate(R.layout.fragment_view_map, container, false)
+
+        mSpinnerAdapter = BusSpinnerAdapter(context)
+
+        Log.v(TAG, "< onCreateView(inflater=$inflater, container=$container, savedInstanceState=$savedInstanceState): $rootView")
+        return rootView
+    }
+
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        Log.v(TAG, "> onViewCreated(view=$view, savedInstanceState=$savedInstanceState)")
+
+        spinnerBusID.adapter = mSpinnerAdapter
+        buttonViewMap.setOnClickListener { buttonViewMapClick() }
+
+        map_view.apply {
+            onCreate(savedInstanceState)
+            getMapAsync { googleMap -> mMap = googleMap }
+        }
+
+        disableBusIdInput()
+
+        Log.v(TAG, "< onViewCreated(view=$view, savedInstanceState=$savedInstanceState)")
+    }
+
+    override fun onDestroyView() {
+        Log.v(TAG, "> onDestroyView()")
+        super.onDestroyView()
+
+        mPresenter?.onDetach()
+
+        Log.v(TAG, "< onDestroyView()")
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        Log.v(TAG, "> onActivityCreated(savedInstanceState=$savedInstanceState)")
+        super.onActivityCreated(savedInstanceState)
+
+        loaderManager.initLoader(VIEW_MAP_LOADER_ID, null, this)
+
+        Log.v(TAG, "< onActivityCreated(savedInstanceState=$savedInstanceState)")
+    }
+
+    override fun onResume() {
+        Log.v(TAG, "> onResume()")
+        super.onResume()
+
+        map_view?.onResume()
+
+        Log.v(TAG, "< onResume()")
+    }
+
+    override fun onPause() {
+        Log.v(TAG, "> onPause()")
+        super.onPause()
+
+        map_view?.onPause()
+
+        Log.v(TAG, "< onPause()")
+    }
+
+    override fun onStop() {
+        Log.v(TAG, "> onStop()")
+        super.onStop()
+
+        if (!activity.isChangingConfigurations) {
+            mPresenter?.stopViewingBusLocation()
+        }
+
+        Log.v(TAG, "< onStop()")
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        Log.v(TAG, "> onSaveInstanceState(outState=$outState)")
+        super.onSaveInstanceState(outState)
+
+        map_view?.onSaveInstanceState(outState)
+
+        Log.v(TAG, "< onSaveInstanceState(outState=$outState)")
+    }
+
+    override fun onLowMemory() {
+        Log.v(TAG, "> onLowMemory()")
+        super.onLowMemory()
+
+        map_view?.onLowMemory()
+
+        Log.v(TAG, "< onLowMemory()")
+    }
+
+    override fun onDestroy() {
+        Log.v(TAG, "> onDestroy()")
+        super.onDestroy()
+
+        map_view?.onDestroy()
+
+        Log.v(TAG, "< onDestroy()")
+    }
+
+    override fun onCreateLoader(id: Int, args: Bundle?): Loader<ViewMapMvp.Presenter> {
+        Log.v(TAG, "> onCreateLoader(id=$id, args=$args)")
+
+        val loader = ViewMapPresenterLoader(context.applicationContext)
+
+        Log.v(TAG, "< onCreateLoader(id=$id, args=$args): $loader")
+        return loader
+    }
+
+    override fun onLoadFinished(loader: Loader<ViewMapMvp.Presenter>, data: ViewMapMvp.Presenter) {
+        Log.v(TAG, "> onLoadFinished(loader=$loader, data=$data)")
+
+        mPresenter = data
+        data.onAttach(this)
+
+        Log.v(TAG, "< onLoadFinished(loader=$loader, data=$data)")
+    }
+
+    override fun onLoaderReset(loader: Loader<ViewMapMvp.Presenter>) {
+        Log.v(TAG, "> onLoaderReset(loader=$loader)")
+
+        mPresenter?.let { presenter ->
+            presenter.onDetach()
+            mPresenter = null
+        }
+
+        Log.v(TAG, "< onLoaderReset(loader=$loader)")
+    }
+
+    @UiThread
+    private fun buttonViewMapClick() {
+        val busID = getBusId()
+
+        if (busID.isNullOrEmpty()) {
+            Log.d(TAG, "empty bus ID; cannot trigger location updates")
+            displayMessage(R.string.empty_bus_id_message)
+            return
+        }
+
+        mPresenter?.startViewingBusLocation()
+    }
+
+    @UiThread
+    override fun getBusId(): String? {
+        return if (mSpinnerAdapter.hasActualBusData()) {
+            spinnerBusID.selectedItem.toString()
+        } else {
+            null
+        }
+    }
+
+    @UiThread
+    override fun setMapMarker(title: String, latitude: Double, longitude: Double) {
+        mMap?.let { map ->
+            val latLng = LatLng(latitude, longitude)
+            map.clear()
+            map.addMarker(MarkerOptions()
+                    .position(latLng)
+                    .title(title))
+            map.moveCamera(CameraUpdateFactory
+                    .newLatLngZoom(latLng, MAP_ZOOM_LEVEL))
+        }
+    }
+
+    @UiThread
+    override fun enableBusIdInput() {
+        spinnerBusID.isEnabled = true
+        buttonViewMap.isEnabled = true
+    }
+
+    @UiThread
+    override fun disableBusIdInput() {
+        spinnerBusID.isEnabled = false
+        buttonViewMap.isEnabled = false
+    }
+
+    @UiThread
+    override fun displayMessage(@StringRes messageId: Int) {
+        context.toast(getString(messageId))
+    }
+
+    @UiThread
+    override fun setAvailableBuses(buses: List<Bus>, defaultBusId: String?) {
+        mSpinnerAdapter.clear()
+        mSpinnerAdapter.addAll(buses)
+
+        if (!defaultBusId.isNullOrEmpty()) {
+            val defaultBusIdIndex = buses.indexOfFirst { it.id == defaultBusId }
+            spinnerBusID.setSelection(defaultBusIdIndex)
+        }
+    }
+
+    @UiThread
+    override fun setBusError(errorMessage: String) {
+        mSpinnerAdapter.setErrorMessage(errorMessage)
+        spinnerBusID.adapter = mSpinnerAdapter
+        mSpinnerAdapter.notifyDataSetChanged()
+        disableBusIdInput()
+    }
+}
