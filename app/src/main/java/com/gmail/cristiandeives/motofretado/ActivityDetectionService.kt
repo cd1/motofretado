@@ -132,10 +132,12 @@ internal class ActivityDetectionService : Service(), GoogleApiClient.ConnectionC
     @UiThread
     private fun removeActivityUpdates() {
         Log.d(TAG, "unsubscribing from activity updates")
-        ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient,
-                mReceiverPendingIntent)
+        if (mGoogleApiClient.isConnected) {
+            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient,
+                    mReceiverPendingIntent)
 
-        Log.d(TAG, "unregistering BroadcastReceiver")
-        unregisterReceiver(mResultReceiver)
+            Log.d(TAG, "unregistering BroadcastReceiver")
+            unregisterReceiver(mResultReceiver)
+        }
     }
 }

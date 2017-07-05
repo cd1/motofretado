@@ -96,8 +96,6 @@ internal class TrackBusPresenter(private val mContext: Context) : TrackBusMvp.Pr
 
     override fun startActivityDetection() {
         Log.d(TAG, "starting service ${mActivityDetectionServiceIntent.component}")
-
-        mView?.disableBusId()
         mContext.startService(mActivityDetectionServiceIntent)
     }
 
@@ -131,7 +129,14 @@ internal class TrackBusPresenter(private val mContext: Context) : TrackBusMvp.Pr
             mPresenterRef.get()?.let { presenter ->
                 when (msg.what) {
                     MSG_DISPLAY_TOAST -> presenter.mView?.displayMessage(presenter.mContext.getString(msg.arg1))
-                    MSG_GMS_CONNECTION_FAILED -> presenter.mView?.displayMessage(presenter.mContext.getString(R.string.gms_connection_failed))
+                    MSG_GMS_CONNECTION_FAILED -> {
+                        presenter.mView?.let { view ->
+                            view.apply {
+                                displayMessage(presenter.mContext.getString(R.string.gms_connection_failed))
+                                uncheckSwitchDetectAutomatically()
+                            }
+                        }
+                    }
                     MSG_UPDATE_LOCATION_SERVICE_DISCONNECTED -> {
                         presenter.apply {
                             mIsUpdateLocationServiceRunning = false
@@ -149,7 +154,12 @@ internal class TrackBusPresenter(private val mContext: Context) : TrackBusMvp.Pr
                             mView?.disableBusId()
                         }
                     }
-                    MSG_ACTIVITY_DETECTION_SERVICE_CONNECTED -> presenter.mIsActivityDetectionServiceRunning = true
+                    MSG_ACTIVITY_DETECTION_SERVICE_CONNECTED -> {
+                        presenter.apply {
+                            mIsActivityDetectionServiceRunning = true
+                            mView?.disableBusId()
+                        }
+                    }
                     MSG_ACTIVITY_DETECTION_SERVICE_DISCONNECTED -> presenter.apply {
                         mIsActivityDetectionServiceRunning = false
                         if (!mIsUpdateLocationServiceRunning) {
