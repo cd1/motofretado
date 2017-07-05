@@ -42,7 +42,7 @@ internal class AddBusDialogFragment : DialogFragment(), TextWatcher {
         super.onStart()
 
         mButtonOK = (dialog as AlertDialog).getButton(DialogInterface.BUTTON_POSITIVE)
-        mButtonOK.isEnabled = false
+        mButtonOK.isEnabled = editBusId.text.isNotBlank()
 
         dialog.editBusId.addTextChangedListener(this)
 
