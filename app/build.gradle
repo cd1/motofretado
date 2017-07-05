@@ -9,8 +9,8 @@ android {
         applicationId "com.gmail.cristiandeives.motofretado"
         minSdkVersion 23
         targetSdkVersion 25
-        versionCode 8
-        versionName '0.6.2'
+        versionCode 9
+        versionName '0.7.0'
     }
     buildTypes {
         release {
