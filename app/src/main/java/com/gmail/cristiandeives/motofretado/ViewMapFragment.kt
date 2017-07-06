@@ -17,6 +17,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.fragment_view_map.*
+import java.util.Date
 
 @MainThread
 internal class ViewMapFragment : Fragment(), LoaderManager.LoaderCallbacks<ViewMapMvp.Presenter>, ViewMapMvp.View {
@@ -183,8 +184,24 @@ internal class ViewMapFragment : Fragment(), LoaderManager.LoaderCallbacks<ViewM
     }
 
     @UiThread
-    override fun setMapMarker(title: String, latitude: Double, longitude: Double) {
+    override fun setMapMarker(busId: String, latitude: Double, longitude: Double, timestamp: Date?) {
         mMap?.let { map ->
+            val title = if (timestamp != null) {
+                val timeDiffMs = Date().time - timestamp.time
+                val minutes = timeDiffMs / 60_000
+                val seconds = (timeDiffMs - minutes * 60_000) / 1_000
+                when {
+                    // show "just now" when it's less than 5s
+                    timeDiffMs < 5_000 -> getString(R.string.bus_marker_just_now, busId)
+                    // show e.g. "10s" when it's less than 1m
+                    timeDiffMs < 60_000 -> getString(R.string.bus_marker_seconds, busId, seconds)
+                    // show e.g. "10m"
+                    else -> getString(R.string.bus_marker_minutes, busId, minutes)
+                }
+            } else {
+                busId
+            }
+
             val latLng = LatLng(latitude, longitude)
             map.clear()
             map.addMarker(MarkerOptions()

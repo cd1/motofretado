@@ -28,4 +28,7 @@
     <string name="no_buses_available">Nenhum fretado disponível</string>
     <string name="loading_bus_numbers">Carregando números dos fretados…</string>
     <string name="read_bus_failed">Não foi possível obter a localização do fretado.</string>
+    <string name="bus_marker_just_now">%s (agora)</string>
+    <string name="bus_marker_seconds">%1$s (%2$ds atrás)</string>
+    <string name="bus_marker_minutes">%1$s (%2$dm atrás)</string>
 </resources>

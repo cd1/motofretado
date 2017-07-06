@@ -4,6 +4,7 @@ import android.support.annotation.StringRes
 import android.support.annotation.UiThread
 import com.gmail.cristiandeives.motofretado.http.Bus
 import com.gmail.cristiandeives.motofretado.http.ModelListener
+import java.util.Date
 
 @UiThread
 internal interface ViewMapMvp {
@@ -15,7 +16,7 @@ internal interface ViewMapMvp {
 
     interface View {
         fun getBusId(): String?
-        fun setMapMarker(title: String, latitude: Double, longitude: Double)
+        fun setMapMarker(busId: String, latitude: Double, longitude: Double, timestamp: Date?)
         fun enableBusIdInput()
         fun disableBusIdInput()
         fun displayMessage(@StringRes messageId: Int)

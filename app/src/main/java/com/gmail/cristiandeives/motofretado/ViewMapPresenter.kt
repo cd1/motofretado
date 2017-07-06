@@ -108,7 +108,7 @@ internal class ViewMapPresenter(private val mContext: Context) : ViewMapMvp.Pres
 
                                         if (data.updatedAt?.after(oldestAcceptableTime.time) ?: false) {
                                             if (data.latitude != null && data.longitude != null) {
-                                                view.setMapMarker(busId, data.latitude, data.longitude)
+                                                view.setMapMarker(busId, data.latitude, data.longitude, data.updatedAt)
                                             }
                                         } else {
                                             view.displayMessage(R.string.view_bus_not_recent_message)
