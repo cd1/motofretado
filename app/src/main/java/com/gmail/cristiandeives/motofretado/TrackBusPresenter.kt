@@ -100,8 +100,10 @@ internal class TrackBusPresenter(private val mContext: Context) : TrackBusMvp.Pr
     }
 
     override fun stopActivityDetection() {
-        Log.d(TAG, "stopping service ${mActivityDetectionServiceIntent.component}")
-        mContext.stopService(mActivityDetectionServiceIntent)
+        if (mIsActivityDetectionServiceRunning) {
+            Log.d(TAG, "stopping service ${mActivityDetectionServiceIntent.component}")
+            mContext.stopService(mActivityDetectionServiceIntent)
+        }
     }
 
     override fun createBus(bus: Bus) {
@@ -140,7 +142,6 @@ internal class TrackBusPresenter(private val mContext: Context) : TrackBusMvp.Pr
                     MSG_UPDATE_LOCATION_SERVICE_DISCONNECTED -> {
                         presenter.apply {
                             mIsUpdateLocationServiceRunning = false
-                            mIsActivityDetectionServiceRunning = false
                             mView?.let { view ->
                                 view.enableBusId()
                                 view.uncheckSwitchDetectAutomatically()
