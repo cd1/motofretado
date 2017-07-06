@@ -40,6 +40,7 @@ internal class TrackBusFragment : Fragment(), LoaderManager.LoaderCallbacks<Trac
         val rootView = inflater.inflate(R.layout.fragment_track_bus, container, false)
 
         mSpinnerAdapter = BusSpinnerAdapter(context)
+        mPresenter = null;
 
         Log.v(TAG, "< onCreateView(inflater=$inflater, container=$container, savedInstanceState=$savedInstanceState): $rootView")
         return rootView
