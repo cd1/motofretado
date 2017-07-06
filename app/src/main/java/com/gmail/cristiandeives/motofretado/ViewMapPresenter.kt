@@ -16,7 +16,7 @@ internal class ViewMapPresenter(private val mContext: Context) : ViewMapMvp.Pres
     companion object {
         private val TAG = ViewMapPresenter::class.java.simpleName
         private const val MSG_VIEW_BUS_LOCATION = 0
-        private const val REPEAT_DELAY = 2500L // ms
+        private const val REPEAT_DELAY = 5_000L // ms
         private const val RECENT_LOCATION_THRESHOLD = 10 // min
         private const val MOST_RECENT_VIEW_BUS_ID_PREF = "most_recent_view_bus_id"
     }

@@ -207,7 +207,7 @@ internal class ViewMapFragment : Fragment(), LoaderManager.LoaderCallbacks<ViewM
             map.addMarker(MarkerOptions()
                     .position(latLng)
                     .title(title))
-            map.moveCamera(CameraUpdateFactory
+            map.animateCamera(CameraUpdateFactory
                     .newLatLngZoom(latLng, MAP_ZOOM_LEVEL))
         }
     }
