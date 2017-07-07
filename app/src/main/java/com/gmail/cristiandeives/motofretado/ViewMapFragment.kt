@@ -1,30 +1,42 @@
 package com.gmail.cristiandeives.motofretado
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.support.annotation.MainThread
 import android.support.annotation.StringRes
 import android.support.annotation.UiThread
 import android.support.v4.app.Fragment
 import android.support.v4.app.LoaderManager
+import android.support.v4.content.ContextCompat
 import android.support.v4.content.Loader
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.gmail.cristiandeives.motofretado.http.Bus
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.fragment_view_map.*
+import java.util.Arrays
 import java.util.Date
 
 @MainThread
-internal class ViewMapFragment : Fragment(), LoaderManager.LoaderCallbacks<ViewMapMvp.Presenter>, ViewMapMvp.View {
+internal class ViewMapFragment : Fragment(),
+        LoaderManager.LoaderCallbacks<ViewMapMvp.Presenter>,
+        OnMapReadyCallback,
+        ViewMapMvp.View
+{
     companion object {
         private val TAG = ViewMapFragment::class.java.simpleName
         private const val MAP_ZOOM_LEVEL = 15f // streets level
         private const val VIEW_MAP_LOADER_ID = 0
+        private const val REQUEST_PERMISSION_INITIAL_LOCATION = 0
     }
 
     private lateinit var mSpinnerAdapter: BusSpinnerAdapter
@@ -50,7 +62,7 @@ internal class ViewMapFragment : Fragment(), LoaderManager.LoaderCallbacks<ViewM
 
         map_view.apply {
             onCreate(savedInstanceState)
-            getMapAsync { googleMap -> mMap = googleMap }
+            getMapAsync(this@ViewMapFragment)
         }
 
         disableBusIdInput()
@@ -132,6 +144,25 @@ internal class ViewMapFragment : Fragment(), LoaderManager.LoaderCallbacks<ViewM
         Log.v(TAG, "< onDestroy()")
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (Log.isLoggable(TAG, Log.VERBOSE)) {
+            Log.v(TAG, "> onRequestPermissionsResult(requestCode=$requestCode, permissions=${Arrays.toString(permissions)}, grantResults=${Arrays.toString(grantResults)})")
+        }
+
+        when (requestCode) {
+            REQUEST_PERMISSION_INITIAL_LOCATION -> {
+                if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
+                    initializeMapCurrentLocation()
+                }
+            }
+            else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+
+        if (Log.isLoggable(TAG, Log.VERBOSE)) {
+            Log.v(TAG, "< onRequestPermissionsResult(requestCode=$requestCode, permissions=${Arrays.toString(permissions)}, grantResults=${Arrays.toString(grantResults)})")
+        }
+    }
+
     override fun onCreateLoader(id: Int, args: Bundle?): Loader<ViewMapMvp.Presenter> {
         Log.v(TAG, "> onCreateLoader(id=$id, args=$args)")
 
@@ -159,6 +190,20 @@ internal class ViewMapFragment : Fragment(), LoaderManager.LoaderCallbacks<ViewM
         }
 
         Log.v(TAG, "< onLoaderReset(loader=$loader)")
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        mMap = googleMap
+
+        // if the user has denied the location permission and rotates the screen,
+        // we don't want to prompt for the permission again
+        if (!map_view.isDirty) {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                initializeMapCurrentLocation()
+            } else {
+                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_PERMISSION_INITIAL_LOCATION)
+            }
+        }
     }
 
     @UiThread
@@ -246,5 +291,24 @@ internal class ViewMapFragment : Fragment(), LoaderManager.LoaderCallbacks<ViewM
         spinnerBusID.adapter = mSpinnerAdapter
         mSpinnerAdapter.notifyDataSetChanged()
         disableBusIdInput()
+    }
+
+    private fun initializeMapCurrentLocation() {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mMap?.let { googleMap ->
+                LocationServices.getFusedLocationProviderClient(activity).lastLocation
+                        .addOnSuccessListener { location: Location? ->
+                            location?.let { loc ->
+                                val latLng = LatLng(loc.latitude, loc.longitude)
+                                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, MAP_ZOOM_LEVEL))
+                            }
+                        }
+                        .addOnFailureListener { ex ->
+                            Log.e(TAG, "failed to get current location; using default map view", ex)
+                        }
+            }
+        } else {
+            Log.w(TAG, "cannot initialize map to current location because the user hasn't granted permission")
+        }
     }
 }
