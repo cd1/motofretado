@@ -42,7 +42,7 @@ internal class AddBusDialogFragment : DialogFragment(), TextWatcher {
         super.onStart()
 
         mButtonOK = (dialog as AlertDialog).getButton(DialogInterface.BUTTON_POSITIVE)
-        mButtonOK.isEnabled = editBusId.text.isNotBlank()
+        mButtonOK.isEnabled = dialog.editBusId.text.isNotBlank()
 
         dialog.editBusId.addTextChangedListener(this)
 
@@ -57,7 +57,7 @@ internal class AddBusDialogFragment : DialogFragment(), TextWatcher {
                 .setTitle(R.string.add_bus_dialog_title)
                 .setView(R.layout.dialog_add_bus)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
-                    val busId = editBusId.text.trim().toString()
+                    val busId = dialog.editBusId.text.trim().toString()
                     mOnClickListener.onPositiveButtonClick(busId)
                 }
                 .setNegativeButton(android.R.string.cancel, null)
