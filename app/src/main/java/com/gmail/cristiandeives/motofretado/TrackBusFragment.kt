@@ -3,6 +3,8 @@ package com.gmail.cristiandeives.motofretado
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -172,11 +174,20 @@ internal class TrackBusFragment : Fragment(), LoaderManager.LoaderCallbacks<Trac
     @UiThread
     override fun enableBusId() {
         spinnerBusID.isEnabled = true
+
+        buttonAddBus.isEnabled = true
+        buttonAddBus.setImageDrawable(context.getDrawable(R.drawable.ic_add))
     }
 
     @UiThread
     override fun disableBusId() {
         spinnerBusID.isEnabled = false
+
+        buttonAddBus.isEnabled = false
+        // change button icon to grayscale
+        val drawable = context.getDrawable(R.drawable.ic_add).mutate()
+        drawable.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN)
+        buttonAddBus.setImageDrawable(drawable)
     }
 
     @UiThread
