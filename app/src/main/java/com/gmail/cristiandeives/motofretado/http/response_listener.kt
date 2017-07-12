@@ -13,7 +13,6 @@ internal sealed class BaseResponseListener<in T>(val mListener: ModelListener<T>
 
         Log.e(TAG, "unexpected error", error)
         error.networkResponse?.let { resp ->
-            // TODO: try to use resp.data.toString()
             val httpError = Error.createFromHTTPBody(String(resp.data))
             Log.e(TAG, "JSONAPI details: $httpError")
         }

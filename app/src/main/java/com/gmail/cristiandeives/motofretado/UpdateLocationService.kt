@@ -13,7 +13,6 @@ import android.os.Message
 import android.os.Messenger
 import android.os.RemoteException
 import android.support.annotation.MainThread
-import android.support.annotation.UiThread
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
@@ -21,8 +20,8 @@ import com.android.volley.RequestQueue
 import com.android.volley.toolbox.Volley
 import com.gmail.cristiandeives.motofretado.http.Bus
 import com.gmail.cristiandeives.motofretado.http.BusResponseListener
-import com.gmail.cristiandeives.motofretado.http.ModelListener
 import com.gmail.cristiandeives.motofretado.http.PatchBusRequest
+import com.gmail.cristiandeives.motofretado.http.EmptyModelListener
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -165,28 +164,10 @@ internal class UpdateLocationService : Service() {
                     longitude = lastLocation.longitude
             )
 
-            val request = PatchBusRequest(bus, BusResponseListener(PatchBusListener()))
+            val request = PatchBusRequest(bus, BusResponseListener(EmptyModelListener))
             mRequestQueue.add(request)
 
             Log.v(TAG, "< onLocationResult(result=$result)")
-        }
-    }
-
-    @UiThread
-    private inner class PatchBusListener : ModelListener<Bus> {
-        private val TAG = javaClass.simpleName
-
-        override fun onSuccess(data: Bus) {
-            Log.d(TAG, "bus location updated successfully")
-        }
-
-        override fun onError(ex: Exception) {
-            val msg = Message.obtain(null, TrackBusPresenter.MyHandler.MSG_DISPLAY_TOAST, R.string.update_network_error, 0)
-            try {
-                mMessenger.send(msg)
-            } catch (e: RemoteException) {
-                Log.e(TAG, "error sending message to display toast", e)
-            }
         }
     }
 }
