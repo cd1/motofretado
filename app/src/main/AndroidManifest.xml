@@ -34,14 +34,14 @@
         </activity>
 
         <service
-            android:name=".ActivityDetectionService"
+            android:name=".ActivityInVehicleFenceService"
             android:exported="false" />
 
         <service
             android:name=".UpdateLocationService"
             android:exported="false" />
 
-        <receiver android:name=".ActivityDetectionResultReceiver" />
+        <receiver android:name=".ActivityInVehicleFenceReceiver" />
 
         <receiver android:name=".UpdateLocationBroadcastReceiver" />
     </application>

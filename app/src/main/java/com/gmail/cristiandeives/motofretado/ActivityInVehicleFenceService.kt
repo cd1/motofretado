@@ -11,18 +11,20 @@ import android.os.Messenger
 import android.support.annotation.MainThread
 import android.support.annotation.UiThread
 import android.util.Log
+import com.google.android.gms.awareness.Awareness
+import com.google.android.gms.awareness.fence.DetectedActivityFence
+import com.google.android.gms.awareness.fence.FenceUpdateRequest
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.location.ActivityRecognition
 
 @MainThread
-internal class ActivityDetectionService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+internal class ActivityInVehicleFenceService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     companion object {
         internal const val EXTRA_MESSENGER = "messenger"
+        internal const val FENCE_KEY = "FENCE_KEY"
 
-        private val TAG = ActivityDetectionService::class.java.simpleName
+        private val TAG = ActivityInVehicleFenceService::class.java.simpleName
         private const val ACTIVITY_CHANGED_REQUEST_CODE = 1
-        private const val DETECTION_INTERVAL = 5000L // ms
     }
 
     private lateinit var mGoogleApiClient: GoogleApiClient
@@ -37,11 +39,11 @@ internal class ActivityDetectionService : Service(), GoogleApiClient.ConnectionC
         mGoogleApiClient = GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                .addApi(ActivityRecognition.API)
+                .addApi(Awareness.API)
                 .build()
 
-        mResultReceiver = ActivityDetectionResultReceiver()
-        mReceiverIntentFilter = IntentFilter(ActivityDetectionResultReceiver.RESULT_ACTION)
+        mResultReceiver = ActivityInVehicleFenceReceiver()
+        mReceiverIntentFilter = IntentFilter(ActivityInVehicleFenceReceiver.RESULT_ACTION)
 
         Log.v(TAG, "< onCreate()")
     }
@@ -52,8 +54,8 @@ internal class ActivityDetectionService : Service(), GoogleApiClient.ConnectionC
         val messenger = intent.extras?.get(EXTRA_MESSENGER)
         if (messenger is Messenger) {
             mMessenger = messenger
-            val receiverIntent = Intent(ActivityDetectionResultReceiver.RESULT_ACTION)
-            receiverIntent.putExtra(ActivityDetectionResultReceiver.EXTRA_MESSENGER, mMessenger)
+            val receiverIntent = Intent(ActivityInVehicleFenceReceiver.RESULT_ACTION)
+            receiverIntent.putExtra(ActivityInVehicleFenceReceiver.EXTRA_MESSENGER, mMessenger)
             mReceiverPendingIntent = PendingIntent.getBroadcast(
                     this,
                     ACTIVITY_CHANGED_REQUEST_CODE,
@@ -121,20 +123,37 @@ internal class ActivityDetectionService : Service(), GoogleApiClient.ConnectionC
 
     @UiThread
     private fun requestActivityUpdates() {
+        Log.d(TAG, "registering activity fence")
+        val fence = DetectedActivityFence.during(DetectedActivityFence.IN_VEHICLE)
+        val registerRequest = FenceUpdateRequest.Builder()
+                .addFence(FENCE_KEY, fence, mReceiverPendingIntent)
+                .build()
+        Awareness.FenceApi.updateFences(mGoogleApiClient, registerRequest).setResultCallback { result ->
+            if (result.isSuccess) {
+                Log.v(TAG, "fence registered successfully")
+            } else {
+                Log.v(TAG, "fence failed to register: ${result.statusMessage}")
+            }
+        }
+
         Log.d(TAG, "registering BroadcastReceiver")
         registerReceiver(mResultReceiver, mReceiverIntentFilter)
-
-        Log.d(TAG, "subscribing to activity updates")
-        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient,
-                DETECTION_INTERVAL, mReceiverPendingIntent)
     }
 
     @UiThread
     private fun removeActivityUpdates() {
-        Log.d(TAG, "unsubscribing from activity updates")
+        Log.d(TAG, "unregistering activity fence")
         if (mGoogleApiClient.isConnected) {
-            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient,
-                    mReceiverPendingIntent)
+            val unregisterRequest = FenceUpdateRequest.Builder()
+                    .removeFence(FENCE_KEY)
+                    .build()
+            Awareness.FenceApi.updateFences(mGoogleApiClient, unregisterRequest).setResultCallback { result ->
+                if (result.isSuccess) {
+                    Log.v(TAG, "fence unregistered successfully")
+                } else {
+                    Log.v(TAG, "fence failed to unregister: ${result.statusMessage}")
+                }
+            }
 
             Log.d(TAG, "unregistering BroadcastReceiver")
             unregisterReceiver(mResultReceiver)

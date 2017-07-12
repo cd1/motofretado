@@ -32,8 +32,8 @@ internal class TrackBusPresenter(private val mContext: Context) : TrackBusMvp.Pr
     init {
         val messenger = Messenger(MyHandler(this))
 
-        mActivityDetectionServiceIntent = Intent(mContext, ActivityDetectionService::class.java).apply {
-            putExtra(ActivityDetectionService.EXTRA_MESSENGER, messenger)
+        mActivityDetectionServiceIntent = Intent(mContext, ActivityInVehicleFenceService::class.java).apply {
+            putExtra(ActivityInVehicleFenceService.EXTRA_MESSENGER, messenger)
         }
 
         mUpdateLocationServiceIntent = Intent(mContext, UpdateLocationService::class.java).apply {
